@@ -4,16 +4,37 @@
 
 An expired GL on a job is an uninsured claim. Most shops still run that in a spreadsheet and type the word *compliant* into a cell. Holdfast refuses that cell.
 
-Status is not stored. It is computed from:
+Status is not stored. It is computed from the original ACORD, the lines a human confirmed, this company’s standards, and today’s date.
 
-1. the original ACORD PDF (immutable evidence)
-2. coverage lines a human confirmed
-3. this company’s standards (limits, additional insured, waiver of subrogation)
-4. today’s date
+GitHub: [harsha-mangena/holdfast](https://github.com/harsha-mangena/holdfast)
 
-A typed “compliant” is void. The document is the only evidence.
+---
 
-Live product: this repo. GitHub: [harsha-mangena/holdfast](https://github.com/harsha-mangena/holdfast).
+## Product in motion
+
+Landing flow (Ingest → Confirm → Derive) plus the no-account demo. The sample GL is already expired. HOLD is the point.
+
+![Holdfast landing and demo](docs/readme/demo.gif)
+
+<p align="center"><img src="docs/readme/13-mobile.png" width="280" alt="Holdfast on a phone" /></p>
+
+| Landing | Board after sample |
+| --- | --- |
+| ![Landing](docs/readme/01-landing.png) | ![Board HOLD](docs/readme/08-board-hold.png) |
+
+| Confirm the ACORD | Empty board on first login |
+| --- | --- |
+| ![Review](docs/readme/10-review.png) | ![Empty board](docs/readme/07-empty-board.png) |
+
+| Demo — read the sample | Subs |
+| --- | --- |
+| ![Demo review](docs/readme/04-demo-review.png) | ![Subs](docs/readme/09-subs.png) |
+
+| Account | Standards |
+| --- | --- |
+| ![Account](docs/readme/11-account.png) | ![Standards](docs/readme/12-standards.png) |
+
+![Pricing](docs/readme/06-pricing.png)
 
 ---
 
