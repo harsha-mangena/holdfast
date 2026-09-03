@@ -1,18 +1,23 @@
 # Holdfast
 
-Certificates of insurance for GCs. **Status is derived, never typed.**
-
-Subs email ACORDs. Someone used to dump them in a drive and check a box. Holdfast reads the PDF, a human confirms the dates, and the board says **CLEAR / WATCH / HOLD**. HOLD does not go through the fence.
+**COI tracker for general contractors.** An expired certificate is an uninsured claim. Status is derived from the ACORD and your standards — never a typed “compliant” checkbox.
 
 ![Demo](docs/readme/demo.gif)
 
-| Landing | The board |
+A sub emails a PDF. Holdfast reads it. A human confirms the dates. The board then answers one question: **can they go through the fence today?**
+
+| Gate | Meaning |
 | --- | --- |
-| ![Landing](docs/readme/01-landing.png) | ![HOLD](docs/readme/08-board-hold.png) |
+| **CLEAR** | Required coverage in force |
+| **WATCH** | Inside 30 days of expiry |
+| **HOLD** | Expired, missing, or short — do not dispatch |
+
+![The board](docs/readme/08-board-hold.png)
+
+Landing demo runs with no account (Iron Ridge Electric, expired GL). Sign in only if you want the board kept overnight.
 
 ```bash
-npm install
-npm run dev    # http://localhost:8080
+npm install && npm run dev
 ```
 
-Fake documents only in staging. Confirm is mandatory — OCR is a draft, not a verdict.
+Staging: fake documents only. OCR is a draft. Confirm is the verdict.
