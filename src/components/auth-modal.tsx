@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { Button, Field, Input } from "@/components/ui-kit";
+import { userFacing } from "@/lib/holdfast/errors";
 
 export function AuthModal({
   open,
@@ -64,7 +65,7 @@ export function AuthModal({
       onAuthed?.();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not continue");
+      setError(userFacing(err));
     } finally {
       setBusy(false);
     }

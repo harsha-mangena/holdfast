@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listRequirements, saveRequirement } from "@/lib/holdfast/actions";
 import { COVERAGE_LABELS } from "@/lib/holdfast/types";
-import { Button, Input } from "@/components/ui-kit";
+import { BoardError, Button, Input } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/requirements")({ component: Requirements });
 
@@ -100,9 +100,8 @@ function Requirements() {
           </li>
         ))}
       </ul>
-      <Button type="button" tone="ghost" disabled>
-        Save is automatic
-      </Button>
+      <BoardError error={q.error} />
+      <BoardError error={save.error} />
     </div>
   );
 }

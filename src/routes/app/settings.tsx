@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { bootstrap, deleteAllData, evidencePack, exportCsv, listAudit, startTrial } from "@/lib/holdfast/actions";
-import { Button, Input } from "@/components/ui-kit";
+import { BoardError, Button, Input } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/settings")({ component: Settings });
 
@@ -93,7 +93,7 @@ function Settings() {
         <Button tone="danger" className="mt-3" disabled={confirm !== "DELETE" || wipe.isPending} onClick={() => wipe.mutate()}>
           Permanently delete
         </Button>
-        {wipe.error ? <p className="mt-2 text-sm text-bad">{wipe.error.message}</p> : null}
+        <BoardError error={wipe.error} />
       </section>
     </div>
   );

@@ -5,6 +5,7 @@ import { computeVendor } from "@/lib/holdfast/compliance";
 import { DEFAULT_REQUIREMENTS, type ExtractedDraft } from "@/lib/holdfast/types";
 import { AuthModal } from "@/components/auth-modal";
 import { Button, StatusChip } from "@/components/ui-kit";
+import { userFacing } from "@/lib/holdfast/errors";
 import { StepDots } from "@/components/flow-dots";
 
 const SAMPLE: ExtractedDraft = {
@@ -83,7 +84,7 @@ export function DemoPlay() {
       setDraft(extracted.lines.length ? extracted : SAMPLE);
       setStep("review");
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Could not read that PDF");
+      setErr(userFacing(e));
       setStep("idle");
     } finally {
       setBusy(false);

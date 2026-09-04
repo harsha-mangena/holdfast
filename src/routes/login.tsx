@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
 import { Button, Field, Input } from "@/components/ui-kit";
+import { userFacing } from "@/lib/holdfast/errors";
 
 export const Route = createFileRoute("/login")({ component: Login });
 
@@ -27,7 +28,7 @@ function Login() {
       }
       window.location.assign("/app");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not sign in");
+      setError(userFacing(err));
     } finally {
       setBusy(false);
     }

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listDashboard, seedSampleJob } from "@/lib/holdfast/actions";
-import { Button, StatusChip } from "@/components/ui-kit";
+import { BoardError, Button, StatusChip } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/")({ component: Board });
 
@@ -36,7 +36,7 @@ function Board() {
           ))}
         </div>
       ) : null}
-      {q.error ? <p className="text-bad">{q.error instanceof Error ? q.error.message : "Failed"}</p> : null}
+      <BoardError error={q.error} />
       {data ? (
         <>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
@@ -60,7 +60,17 @@ function Board() {
                       : `${data.vendors.length} clear. The gate is open.`
                     : `${hold} cannot enter the job today.`}
                 </p>
-                <p className="mt-1 text-sm text-muted">Superintendent question: who goes through the fence at 6am.</p>
+                <p className="mt-1 text-sm text-muted">
+                  Superintendent question: who goes through the fence at 6am.{" "}
+                  {hold > 0 ? (
+                    <Link to="/app/chase" className="text-primary underline">
+                      Chase the HOLD
+                    </Link>
+                  ) : null}{" "}
+                  <Link to="/app/clerk" className="text-primary underline">
+                    Ask the clerk
+                  </Link>
+                </p>
               </section>
             );
           })()}
@@ -97,7 +107,7 @@ function Board() {
                     </Button>
                   </Link>
                 </div>
-                {seed.error ? <p className="mt-3 text-sm text-bad">{seed.error.message}</p> : null}
+                <BoardError error={seed.error} />
               </div>
             ) : (
               data.vendors.map((v) => (

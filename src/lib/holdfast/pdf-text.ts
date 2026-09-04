@@ -20,6 +20,14 @@ function fitJpeg(canvas: HTMLCanvasElement): string {
 }
 
 export async function pdfToEvidence(data: ArrayBuffer): Promise<{ text: string; images: string[] }> {
+  try {
+    return await readPdf(data);
+  } catch {
+    throw new Error("Could not read that PDF. Try another file, or type the fields.");
+  }
+}
+
+async function readPdf(data: ArrayBuffer): Promise<{ text: string; images: string[] }> {
   const doc = await pdfjs.getDocument({ data }).promise;
   const textParts: string[] = [];
   const images: string[] = [];
@@ -50,7 +58,7 @@ export function fileToBase64(file: File): Promise<string> {
       const comma = result.indexOf(",");
       resolve(comma >= 0 ? result.slice(comma + 1) : result);
     };
-    reader.onerror = () => reject(reader.error);
+    reader.onerror = () => reject(new Error("Could not read that file."));
     reader.readAsDataURL(file);
   });
 }

@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { confirmCertificate, getCertificate, reuploadCertificate } from "@/lib/holdfast/actions";
 import { COVERAGE_LABELS, COVERAGE_TYPES, type ExtractedDraft } from "@/lib/holdfast/types";
-import { Button, Field, Input } from "@/components/ui-kit";
+import { BoardError, Button, Field, Input } from "@/components/ui-kit";
 
 const EMPTY_LINE: ExtractedDraft["lines"][0] = {
   coverageType: "general_liability",
@@ -73,7 +73,7 @@ function Review() {
   if (q.error) {
     return (
       <div className="space-y-3">
-        <p className="text-bad">{q.error instanceof Error ? q.error.message : "Could not load this certificate"}</p>
+        <BoardError error={q.error} />
         <Link to="/app/certificates" className="text-sm text-primary">
           Back to certificates
         </Link>
@@ -117,7 +117,7 @@ function Review() {
           />
         </label>
       </div>
-      {reup.error ? <p className="text-sm text-bad">{reup.error instanceof Error ? reup.error.message : "Re-upload failed"}</p> : null}
+      <BoardError error={reup.error} />
       <p className="text-sm text-muted">{ocrNote}</p>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="min-h-64 overflow-hidden border border-border bg-paper">
@@ -211,7 +211,7 @@ function Review() {
           >
             Add coverage line
           </Button>
-          {save.error ? <p className="text-sm text-bad">{save.error.message}</p> : null}
+          <BoardError error={save.error} />
           <Button type="submit" disabled={save.isPending} className="min-h-12 w-full sm:w-auto">
             Confirm — compute status
           </Button>

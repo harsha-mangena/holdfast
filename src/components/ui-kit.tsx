@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
+import { userFacing } from "@/lib/holdfast/errors";
 
 export function Button({
   tone = "primary",
@@ -54,4 +55,9 @@ export function StatusChip({ status }: { status: string }) {
       {status.replace("_", " ")}
     </span>
   );
+}
+
+export function BoardError({ error }: { error: unknown }) {
+  if (!error) return null;
+  return <p className="text-sm text-bad">{userFacing(error)}</p>;
 }

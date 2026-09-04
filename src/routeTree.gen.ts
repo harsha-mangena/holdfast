@@ -16,7 +16,10 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppAccountRouteImport } from './routes/app/account'
+import { Route as AppBooksRouteImport } from './routes/app/books'
 import { Route as AppCertificatesRouteImport } from './routes/app/certificates'
+import { Route as AppChaseRouteImport } from './routes/app/chase'
+import { Route as AppClerkRouteImport } from './routes/app/clerk'
 import { Route as AppRequirementsRouteImport } from './routes/app/requirements'
 import { Route as AppSettingsRouteImport } from './routes/app/settings'
 import { Route as AppVendorsRouteImport } from './routes/app/vendors'
@@ -58,9 +61,24 @@ const AppAccountRoute = AppAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBooksRoute = AppBooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCertificatesRoute = AppCertificatesRouteImport.update({
   id: '/certificates',
   path: '/certificates',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppChaseRoute = AppChaseRouteImport.update({
+  id: '/chase',
+  path: '/chase',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClerkRoute = AppClerkRouteImport.update({
+  id: '/clerk',
+  path: '/clerk',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRequirementsRoute = AppRequirementsRouteImport.update({
@@ -96,7 +114,10 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/app/account': typeof AppAccountRoute
+  '/app/books': typeof AppBooksRoute
   '/app/certificates': typeof AppCertificatesRoute
+  '/app/chase': typeof AppChaseRoute
+  '/app/clerk': typeof AppClerkRoute
   '/app/requirements': typeof AppRequirementsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/vendors': typeof AppVendorsRoute
@@ -110,7 +131,10 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/app/account': typeof AppAccountRoute
+  '/app/books': typeof AppBooksRoute
   '/app/certificates': typeof AppCertificatesRoute
+  '/app/chase': typeof AppChaseRoute
+  '/app/clerk': typeof AppClerkRoute
   '/app/requirements': typeof AppRequirementsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/vendors': typeof AppVendorsRoute
@@ -126,7 +150,10 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/app/account': typeof AppAccountRoute
+  '/app/books': typeof AppBooksRoute
   '/app/certificates': typeof AppCertificatesRoute
+  '/app/chase': typeof AppChaseRoute
+  '/app/clerk': typeof AppClerkRoute
   '/app/requirements': typeof AppRequirementsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/vendors': typeof AppVendorsRoute
@@ -143,7 +170,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/app/account'
+    | '/app/books'
     | '/app/certificates'
+    | '/app/chase'
+    | '/app/clerk'
     | '/app/requirements'
     | '/app/settings'
     | '/app/vendors'
@@ -157,7 +187,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/app/account'
+    | '/app/books'
     | '/app/certificates'
+    | '/app/chase'
+    | '/app/clerk'
     | '/app/requirements'
     | '/app/settings'
     | '/app/vendors'
@@ -172,7 +205,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/app/account'
+    | '/app/books'
     | '/app/certificates'
+    | '/app/chase'
+    | '/app/clerk'
     | '/app/requirements'
     | '/app/settings'
     | '/app/vendors'
@@ -241,11 +277,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/books': {
+      id: '/app/books'
+      path: '/books'
+      fullPath: '/app/books'
+      preLoaderRoute: typeof AppBooksRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/certificates': {
       id: '/app/certificates'
       path: '/certificates'
       fullPath: '/app/certificates'
       preLoaderRoute: typeof AppCertificatesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/chase': {
+      id: '/app/chase'
+      path: '/chase'
+      fullPath: '/app/chase'
+      preLoaderRoute: typeof AppChaseRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/clerk': {
+      id: '/app/clerk'
+      path: '/clerk'
+      fullPath: '/app/clerk'
+      preLoaderRoute: typeof AppClerkRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/requirements': {
@@ -288,7 +345,10 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRoute
+  AppBooksRoute: typeof AppBooksRoute
   AppCertificatesRoute: typeof AppCertificatesRoute
+  AppChaseRoute: typeof AppChaseRoute
+  AppClerkRoute: typeof AppClerkRoute
   AppRequirementsRoute: typeof AppRequirementsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppVendorsRoute: typeof AppVendorsRoute
@@ -298,7 +358,10 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRoute,
+  AppBooksRoute: AppBooksRoute,
   AppCertificatesRoute: AppCertificatesRoute,
+  AppChaseRoute: AppChaseRoute,
+  AppClerkRoute: AppClerkRoute,
   AppRequirementsRoute: AppRequirementsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppVendorsRoute: AppVendorsRoute,

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { bootstrap, listDashboard, saveOrg } from "@/lib/holdfast/actions";
 import { authEnabled, signOut } from "@/lib/auth/client";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
-import { Button, Field, Input } from "@/components/ui-kit";
+import { BoardError, Button, Field, Input } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/account")({ component: Account });
 
@@ -69,7 +69,7 @@ function Account() {
             Save
           </Button>
         </form>
-        {save.error ? <p className="mt-2 text-sm text-bad">{save.error.message}</p> : null}
+        <BoardError error={save.error} />
         <p className="mt-3 text-sm text-muted">
           Plan {org.data?.plan ?? "—"} · billing {org.data?.billing_status ?? "—"}.{" "}
           <Link to="/app/settings" className="text-primary underline">

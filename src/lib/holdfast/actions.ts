@@ -1,8 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { humanBoard } from "./errors";
 import { getSql } from "@/lib/db";
 import { extractCertificate } from "./extract";
+import { extractPay } from "./extract-pay";
 import { computeVendor, SEVERITY } from "./compliance";
+import { grokClerk, localClerk, type ClerkTurn } from "./clerk";
 import { sampleAcordPdfBase64, SAMPLE_EXTRACTION } from "./sample-pdf";
 import {
   DEFAULT_REQUIREMENTS,
@@ -20,7 +23,24 @@ async function audit(sql: Awaited<ReturnType<typeof getSql>>, userId: string, ac
   await sql`insert into hf_audit (id, user_id, action, detail) values (${id()}, ${userId}, ${action}, ${detail})`;
 }
 
+async function ensureSchema(sql: Awaited<ReturnType<typeof getSql>>) {
+  await sql.query("alter table hf_vendors add column if not exists phone text");
+  await sql.query(`
+    create table if not exists hf_pay_lines (
+      id text primary key,
+      user_id text not null,
+      vendor_id text not null,
+      kind text not null,
+      amount_cents integer not null,
+      memo text,
+      doc_date text,
+      original_filename text,
+      created_at timestamptz not null default now()
+    )`);
+}
+
 async function ensureOrg(sql: Awaited<ReturnType<typeof getSql>>, userId: string) {
+  await ensureSchema(sql);
   const existing = await sql<{ user_id: string }>`select user_id from hf_orgs where user_id = ${userId}`;
   if (existing.length) return;
   await sql`insert into hf_orgs (user_id, name) values (${userId}, ${"My company"})`;
@@ -87,7 +107,7 @@ function mapCov(r: CovRow): CoverageLine {
 }
 
 export const bootstrap = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     await ensureOrg(sql, context.userId);
@@ -97,7 +117,7 @@ export const bootstrap = createServerFn({ method: "POST" })
   });
 
 export const saveOrg = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .validator((input: { name: string }) => input)
   .handler(async ({ context, data }) => {
     const sql = await getSql();
@@ -110,7 +130,7 @@ export const saveOrg = createServerFn({ method: "POST" })
   });
 
 export const listDashboard = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     await ensureOrg(sql, context.userId);
@@ -151,7 +171,7 @@ export const listDashboard = createServerFn({ method: "GET" })
   });
 
 export const seedSampleJob = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     await ensureOrg(sql, context.userId);
@@ -159,8 +179,8 @@ export const seedSampleJob = createServerFn({ method: "POST" })
       select id from hf_vendors where user_id = ${context.userId} and name = ${"Iron Ridge Electric"} limit 1`;
     if (existing[0]) return { vendorId: existing[0].id, reused: true };
     const vid = id();
-    await sql`insert into hf_vendors (id, user_id, name, trade, contact_email)
-      values (${vid}, ${context.userId}, ${"Iron Ridge Electric"}, ${"Electrical"}, ${"ops@ironridge.example"})`;
+    await sql`insert into hf_vendors (id, user_id, name, trade, contact_email, phone)
+      values (${vid}, ${context.userId}, ${"Iron Ridge Electric"}, ${"Electrical"}, ${"ops@ironridge.example"}, ${"555-0144"})`;
     const cid = id();
     const pdf = sampleAcordPdfBase64();
     const extraction = JSON.stringify(SAMPLE_EXTRACTION);
@@ -180,38 +200,39 @@ export const seedSampleJob = createServerFn({ method: "POST" })
   });
 
 export const listVendors = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     await ensureOrg(sql, context.userId);
-    return sql<{ id: string; name: string; trade: string | null; contact_email: string | null; active: boolean }>`
-      select id, name, trade, contact_email, active from hf_vendors
+    return sql<{ id: string; name: string; trade: string | null; contact_email: string | null; phone: string | null; active: boolean }>`
+      select id, name, trade, contact_email, phone, active from hf_vendors
       where user_id = ${context.userId} order by active desc, name`;
   });
 
 export const saveVendor = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
-  .validator((input: { id?: string; name: string; trade?: string; contactEmail?: string }) => input)
+  .middleware([authMiddleware, humanBoard])
+  .validator((input: { id?: string; name: string; trade?: string; contactEmail?: string; phone?: string }) => input)
   .handler(async ({ context, data }) => {
     const sql = await getSql();
     await ensureOrg(sql, context.userId);
     const name = data.name.trim();
     if (!name) throw new Error("Name is required");
+    const phone = data.phone?.trim() || null;
     if (data.id) {
-      await sql`update hf_vendors set name = ${name}, trade = ${data.trade ?? null}, contact_email = ${data.contactEmail ?? null}
+      await sql`update hf_vendors set name = ${name}, trade = ${data.trade ?? null}, contact_email = ${data.contactEmail ?? null}, phone = ${phone}
         where id = ${data.id} and user_id = ${context.userId}`;
       await audit(sql, context.userId, "vendor.update", name);
       return { id: data.id };
     }
     const vid = id();
-    await sql`insert into hf_vendors (id, user_id, name, trade, contact_email)
-      values (${vid}, ${context.userId}, ${name}, ${data.trade ?? null}, ${data.contactEmail ?? null})`;
+    await sql`insert into hf_vendors (id, user_id, name, trade, contact_email, phone)
+      values (${vid}, ${context.userId}, ${name}, ${data.trade ?? null}, ${data.contactEmail ?? null}, ${phone})`;
     await audit(sql, context.userId, "vendor.create", name);
     return { id: vid };
   });
 
 export const listRequirements = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     await ensureOrg(sql, context.userId);
@@ -222,7 +243,7 @@ export const listRequirements = createServerFn({ method: "GET" })
   });
 
 export const saveRequirement = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .validator(
     (input: {
       id: string;
@@ -249,12 +270,17 @@ export const saveRequirement = createServerFn({ method: "POST" })
 export const extractLive = createServerFn({ method: "POST" })
   .validator((input: { text: string; images?: string[] }) => input)
   .handler(async ({ data }) => {
-    const images = (data.images ?? []).slice(0, 2);
-    return extractCertificate(data.text.slice(0, 12000), images);
+    try {
+      const images = (data.images ?? []).slice(0, 2);
+      return await extractCertificate(data.text.slice(0, 12000), images);
+    } catch (err) {
+      const { humanBoardError } = await import("./errors");
+      throw humanBoardError(err);
+    }
   });
 
 export const ingestCertificate = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .validator((input: { vendorId: string; filename: string; pdfBase64: string; text: string; images?: string[] }) => input)
   .handler(async ({ context, data }) => {
     const sql = await getSql();
@@ -262,7 +288,7 @@ export const ingestCertificate = createServerFn({ method: "POST" })
     if (data.pdfBase64.length > 2_000_000) throw new Error("PDF too large for this environment (keep under ~1.5MB)");
     const vendor = await sql<{ id: string }>`
       select id from hf_vendors where id = ${data.vendorId} and user_id = ${context.userId}`;
-    if (!vendor[0]) throw new Error("Vendor not found");
+    if (!vendor[0]) throw new Error("That sub is not on this board.");
     const draft = await extractCertificate(data.text, data.images ?? []);
     const cid = id();
     await sql`
@@ -273,14 +299,14 @@ export const ingestCertificate = createServerFn({ method: "POST" })
   });
 
 export const reuploadCertificate = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .validator((input: { id: string; filename: string; pdfBase64: string; text: string; images?: string[] }) => input)
   .handler(async ({ context, data }) => {
     const sql = await getSql();
     if (data.pdfBase64.length > 2_000_000) throw new Error("PDF too large (keep under ~1.5MB)");
     const owned = await sql<{ id: string }>`
       select id from hf_certificates where id = ${data.id} and user_id = ${context.userId}`;
-    if (!owned[0]) throw new Error("Not found");
+    if (!owned[0]) throw new Error("That certificate is gone.");
     const draft = await extractCertificate(data.text, data.images ?? []);
     await sql`delete from hf_coverage_lines where certificate_id = ${data.id} and user_id = ${context.userId}`;
     await sql`
@@ -297,7 +323,7 @@ export const reuploadCertificate = createServerFn({ method: "POST" })
   });
 
 export const listCertificates = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     return sql<{
@@ -316,7 +342,7 @@ export const listCertificates = createServerFn({ method: "GET" })
   });
 
 export const getCertificate = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .validator((input: { id: string }) => input)
   .handler(async ({ context, data }) => {
     const sql = await getSql();
@@ -332,7 +358,7 @@ export const getCertificate = createServerFn({ method: "POST" })
       select id, vendor_id, status, original_filename, pdf_base64, extraction_json, error_message
       from hf_certificates where id = ${data.id} and user_id = ${context.userId}`;
     const cert = rows[0];
-    if (!cert) throw new Error("Not found");
+    if (!cert) throw new Error("That certificate is gone.");
     let draft: ExtractedDraft | null = null;
     if (cert.extraction_json) {
       try {
@@ -370,13 +396,13 @@ export const getCertificate = createServerFn({ method: "POST" })
   });
 
 export const confirmCertificate = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .validator((input: { id: string; draft: ExtractedDraft }) => input)
   .handler(async ({ context, data }) => {
     const sql = await getSql();
     const owned = await sql<{ id: string }>`
       select id from hf_certificates where id = ${data.id} and user_id = ${context.userId}`;
-    if (!owned[0]) throw new Error("Not found");
+    if (!owned[0]) throw new Error("That certificate is gone.");
     await sql`delete from hf_coverage_lines where certificate_id = ${data.id} and user_id = ${context.userId}`;
     for (const line of data.draft.lines) {
       if (line.coverageType === "unknown") continue;
@@ -399,7 +425,7 @@ export const confirmCertificate = createServerFn({ method: "POST" })
   });
 
 export const listAudit = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     return sql<{ id: string; action: string; detail: string | null; created_at: string }>`
@@ -408,7 +434,7 @@ export const listAudit = createServerFn({ method: "GET" })
   });
 
 export const startTrial = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     await ensureOrg(sql, context.userId);
@@ -418,7 +444,7 @@ export const startTrial = createServerFn({ method: "POST" })
   });
 
 export const deleteAllData = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .validator((input: { confirm: string }) => input)
   .handler(async ({ context, data }) => {
     if (data.confirm !== "DELETE") throw new Error("Type DELETE to confirm");
@@ -433,7 +459,7 @@ export const deleteAllData = createServerFn({ method: "POST" })
   });
 
 export const exportCsv = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     await ensureOrg(sql, context.userId);
@@ -463,7 +489,7 @@ export const exportCsv = createServerFn({ method: "GET" })
 
 /** Point-in-time evidence pack. Status is recomputed, never read from a stored checkbox. */
 export const evidencePack = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, humanBoard])
   .handler(async ({ context }) => {
     const sql = await getSql();
     await ensureOrg(sql, context.userId);
@@ -506,3 +532,115 @@ export const evidencePack = createServerFn({ method: "GET" })
       vendors: book,
     };
   });
+
+export const askClerk = createServerFn({ method: "POST" })
+  .middleware([authMiddleware, humanBoard])
+  .validator((input: { question: string; history?: ClerkTurn[] }) => input)
+  .handler(async ({ context, data }) => {
+    const question = data.question.trim().slice(0, 800);
+    if (!question) throw new Error("Ask something.");
+    const sql = await getSql();
+    await ensureOrg(sql, context.userId);
+    const org = await sql<{ name: string }>`select name from hf_orgs where user_id = ${context.userId}`;
+    const orgName = org[0]?.name || "the GC";
+    const vendors = await sql<{ id: string; name: string }>`
+      select id, name from hf_vendors where user_id = ${context.userId} and active = true`;
+    const reqs = await sql<ReqRow>`
+      select id, coverage_type, per_occurrence_cents, aggregate_cents, requires_ai, requires_wos
+      from hf_requirement_lines where user_id = ${context.userId}`;
+    const cov = await sql<CovRow & { vendor_id: string | null }>`
+      select cl.id, cl.certificate_id, cl.coverage_type, cl.insurer, cl.policy_number,
+             cl.effective_date, cl.expiration_date, cl.per_occurrence_cents, cl.aggregate_cents,
+             cl.additional_insured, cl.waiver_of_subrogation, c.vendor_id
+      from hf_coverage_lines cl
+      join hf_certificates c on c.id = cl.certificate_id
+      where cl.user_id = ${context.userId} and c.status = 'confirmed'`;
+    const requirements = reqs.map(mapReq);
+    const scored = vendors.map((v) =>
+      computeVendor({
+        vendorId: v.id,
+        vendorName: v.name,
+        requirements,
+        coverage: cov.filter((c) => c.vendor_id === v.id).map(mapCov),
+      }),
+    );
+    const pay = await sql<{ vendor_id: string; kind: string; amount_cents: number }>`
+      select vendor_id, kind, amount_cents from hf_pay_lines where user_id = ${context.userId}`;
+    const byVendor = new Map<string, { billed: number; paid: number }>();
+    for (const p of pay) {
+      const cur = byVendor.get(p.vendor_id) ?? { billed: 0, paid: 0 };
+      if (p.kind === "payment") cur.paid += p.amount_cents;
+      else cur.billed += p.amount_cents;
+      byVendor.set(p.vendor_id, cur);
+    }
+    const booksNote = vendors
+      .map((v) => {
+        const b = byVendor.get(v.id);
+        if (!b) return `${v.name}: no pay lines`;
+        return `${v.name}: billed ${b.billed} cents, paid ${b.paid} cents, remaining ${b.billed - b.paid} cents`;
+      })
+      .join("\n");
+    const qPlus = question + "\n\nBooks (cents):\n" + booksNote;
+    const fast = localClerk(question, orgName, scored);
+    const answer =
+      fast && !(data.history?.length) && !/book|owe|balance|reconcil|retain/i.test(question)
+        ? fast
+        : await grokClerk(qPlus, data.history ?? [], orgName, scored);
+    await audit(sql, context.userId, "clerk.ask", question.slice(0, 160));
+    return { answer };
+  });
+
+export const listBooks = createServerFn({ method: "GET" })
+  .middleware([authMiddleware, humanBoard])
+  .handler(async ({ context }) => {
+    const sql = await getSql();
+    await ensureOrg(sql, context.userId);
+    const vendors = await sql<{ id: string; name: string; contact_email: string | null; phone: string | null }>`
+      select id, name, contact_email, phone from hf_vendors where user_id = ${context.userId} and active = true order by name`;
+    const lines = await sql<{
+      id: string;
+      vendor_id: string;
+      kind: string;
+      amount_cents: number;
+      memo: string | null;
+      doc_date: string | null;
+      original_filename: string | null;
+      created_at: string;
+    }>`
+      select id, vendor_id, kind, amount_cents, memo, doc_date, original_filename, created_at::text
+      from hf_pay_lines where user_id = ${context.userId} order by created_at desc`;
+    return vendors.map((v) => {
+      const mine = lines.filter((l) => l.vendor_id === v.id);
+      const billed = mine.filter((l) => l.kind === "invoice").reduce((s, l) => s + l.amount_cents, 0);
+      const paid = mine.filter((l) => l.kind === "payment").reduce((s, l) => s + l.amount_cents, 0);
+      return { ...v, billed, paid, remaining: billed - paid, lines: mine };
+    });
+  });
+
+export const postPayLine = createServerFn({ method: "POST" })
+  .middleware([authMiddleware, humanBoard])
+  .validator((input: {
+    vendorId: string;
+    kind: "invoice" | "payment";
+    amountCents: number;
+    memo?: string;
+    docDate?: string;
+    filename?: string;
+  }) => input)
+  .handler(async ({ context, data }) => {
+    if (!data.vendorId) throw new Error("Pick a sub");
+    if (!Number.isFinite(data.amountCents) || data.amountCents <= 0) throw new Error("Amount required");
+    const sql = await getSql();
+    const owns = await sql<{ id: string }>`select id from hf_vendors where id = ${data.vendorId} and user_id = ${context.userId}`;
+    if (!owns[0]) throw new Error("Pick a sub from the list.");
+    const lid = id();
+    await sql`insert into hf_pay_lines (id, user_id, vendor_id, kind, amount_cents, memo, doc_date, original_filename)
+      values (${lid}, ${context.userId}, ${data.vendorId}, ${data.kind}, ${data.amountCents}, ${data.memo ?? null}, ${data.docDate ?? null}, ${data.filename ?? null})`;
+    await audit(sql, context.userId, "pay.post", data.kind + " " + data.amountCents);
+    return { id: lid };
+  });
+
+export const extractPayLive = createServerFn({ method: "POST" })
+  .middleware([authMiddleware, humanBoard])
+  .validator((input: { text: string; images?: string[] }) => input)
+  .handler(async ({ data }) => extractPay(data.text, data.images ?? []));

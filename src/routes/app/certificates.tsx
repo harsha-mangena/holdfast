@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ingestCertificate, listCertificates, listVendors } from "@/lib/holdfast/actions";
-import { Button, StatusChip } from "@/components/ui-kit";
+import { BoardError, Button, StatusChip } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/certificates")({ component: Certificates });
 
@@ -61,7 +61,7 @@ function Certificates() {
             }}
           />
         </label>
-        {ingest.error ? <p className="text-sm text-bad">{ingest.error.message}</p> : null}
+        <BoardError error={ingest.error} />
         {msg ? <p className="text-sm text-ok">{msg}</p> : null}
       </div>
       <ul className="space-y-2">
