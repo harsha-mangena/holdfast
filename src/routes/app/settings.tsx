@@ -1,14 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { bootstrap, deleteAllData, evidencePack, exportCsv, listAudit, startTrial } from "@/lib/holdfast/actions";
-import { BoardError, Button, Input } from "@/components/ui-kit";
+import { bootstrap, carrierStatus, deleteAllData, evidencePack, exportCsv, listAudit, saveCarrier, startTrial } from "@/lib/holdfast/actions";
+import { BoardError, Button, Field, Input } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/settings")({ component: Settings });
 
 function Settings() {
   const qc = useQueryClient();
   const org = useQuery({ queryKey: ["org"], queryFn: () => bootstrap() });
+  const carrier = useQuery({ queryKey: ["carrier"], queryFn: () => carrierStatus() });
+  const [sid, setSid] = useState("");
+  const [token, setToken] = useState("");
+  const [from, setFrom] = useState("");
+  const saveKeys = useMutation({
+    mutationFn: () => saveCarrier({ data: { sid, token, from } }),
+    onSuccess: () => {
+      setToken("");
+      void qc.invalidateQueries({ queryKey: ["carrier"] });
+    },
+  });
   const audit = useQuery({ queryKey: ["audit"], queryFn: () => listAudit() });
   const [confirm, setConfirm] = useState("");
   const trial = useMutation({
@@ -60,6 +71,48 @@ function Settings() {
         <Button className="mt-3" onClick={() => trial.mutate()} disabled={trial.isPending}>
           Start starter trial (simulator)
         </Button>
+      </section>
+      <section className="border border-border bg-surface p-4">
+        <h2 className="font-display text-2xl">Twilio</h2>
+        <p className="mt-1 text-sm text-muted">
+          I cannot open a Twilio account for you. Create one at twilio.com, buy a number, paste the three values here.
+          Keys stay on this board, not in git.
+        </p>
+        <p className="mt-2 text-sm">
+          {carrier.data?.connected
+            ? `Carrier on · from ${carrier.data.from} · ${carrier.data.source}`
+            : "Carrier off — Call speaks in the booth only."}
+        </p>
+        <form
+          className="mt-4 grid gap-3 sm:grid-cols-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            saveKeys.mutate();
+          }}
+        >
+          <Field label="Account SID">
+            <Input value={sid} onChange={(e) => setSid(e.target.value)} placeholder="ACxxxxxxxx" autoComplete="off" />
+          </Field>
+          <Field label="Auth token">
+            <Input
+              type="password"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              placeholder="paste once"
+              autoComplete="off"
+            />
+          </Field>
+          <Field label="From number">
+            <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="+15551234567" />
+          </Field>
+          <div className="flex items-end">
+            <Button type="submit" disabled={saveKeys.isPending} className="w-full">
+              Save carrier
+            </Button>
+          </div>
+        </form>
+        <BoardError error={saveKeys.error} />
+        {saveKeys.isSuccess ? <p className="mt-2 text-sm text-ok">Saved. Chase → Call will ring if the sub number is real.</p> : null}
       </section>
       <section className="border border-border bg-surface p-4">
         <h2 className="font-display text-2xl">Evidence pack</h2>

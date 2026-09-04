@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
 import { userFacing } from "@/lib/holdfast/errors";
 
 export function Button({
@@ -54,6 +54,25 @@ export function StatusChip({ status }: { status: string }) {
     <span className={`inline-flex rounded-sm border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${map[status] ?? "text-muted border-border"}`}>
       {status.replace("_", " ")}
     </span>
+  );
+}
+
+export function ButtonLink({
+  tone = "primary",
+  className = "",
+  ...props
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { tone?: "primary" | "ghost" | "danger" | "paper" }) {
+  const tones: Record<string, string> = {
+    primary: "bg-primary text-primary-fg hover:opacity-90",
+    ghost: "border border-border bg-transparent text-fg hover:bg-raised",
+    danger: "bg-bad text-fg hover:opacity-90",
+    paper: "bg-paper text-ink hover:opacity-90",
+  };
+  return (
+    <a
+      className={`inline-flex min-h-11 items-center justify-center rounded-md px-4 text-sm font-semibold tracking-wide transition-[transform,opacity] duration-150 ease-out active:scale-[0.96] ${tones[tone]} ${className}`}
+      {...props}
+    />
   );
 }
 

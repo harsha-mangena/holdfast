@@ -43,8 +43,8 @@ export function humanBoardError(err: unknown): Error {
   if (/XAI_API_KEY|api key/i.test(raw)) {
     return new Error("Could not read the document. Type the fields or try the PDF again.");
   }
-  if (/Failed to fetch|ECONNRESET|network|Load failed/i.test(raw)) {
-    return new Error("Network dropped. Try again.");
+  if (/email.?not.?verif|verify your email|EMAIL_NOT_VERIFIED/i.test(raw)) {
+    return new Error("Confirm the email we sent before you open the board.");
   }
   if (/InvalidPDF|PDF/i.test(raw) && looksLikeCode(raw)) {
     return new Error("That file is not a readable PDF. Try another copy.");

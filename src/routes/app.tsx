@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { AppShell } from "@/components/app-shell";
@@ -15,5 +15,8 @@ function AppLayout() {
     );
   }
   if (!user) return <RedirectToSignIn to="/login" />;
+  if (!user.emailVerified) {
+    return <Navigate to="/verify" search={{ email: user.primaryEmail ?? "" }} />;
+  }
   return <AppShell />;
 }

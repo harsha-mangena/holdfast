@@ -150,6 +150,9 @@ export default defineConfig(({ command, isPreview }) => ({
     host: "0.0.0.0",
     port: 8080,
     strictPort: true,
+    proxy: {
+      "/mailpit": { target: "http://127.0.0.1:8025", changeOrigin: true, ws: true },
+    },
   },
   preview: {
     host: "127.0.0.1",

@@ -1,83 +1,174 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { listDashboard, seedSampleJob } from "@/lib/holdfast/actions";
+import { listBooks, listDashboard, seedSampleJob } from "@/lib/holdfast/actions";
 import { BoardError, Button, StatusChip } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/")({ component: Board });
 
+function money(cents: number) {
+  return (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
+}
+
 function Board() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["dashboard"], queryFn: () => listDashboard() });
+  const books = useQuery({ queryKey: ["books"], queryFn: () => listBooks() });
   const seed = useMutation({
     mutationFn: () => seedSampleJob(),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["dashboard"] });
       void qc.invalidateQueries({ queryKey: ["vendors"] });
       void qc.invalidateQueries({ queryKey: ["certs"] });
+      void qc.invalidateQueries({ queryKey: ["books"] });
     },
   });
   const data = q.data;
+  const bookRows = books.data ?? [];
+  const openCents = bookRows.reduce((s, r) => s + r.remaining, 0);
+  const billedCents = bookRows.reduce((s, r) => s + r.billed, 0);
+  const paidCents = bookRows.reduce((s, r) => s + r.paid, 0);
+  const hold = data?.vendors.filter((v) => v.gate === "hold") ?? [];
+  const watch = data?.vendors.filter((v) => v.gate === "watch") ?? [];
+  const clear = data?.vendors.filter((v) => v.gate === "clear") ?? [];
+
   return (
     <div className="space-y-8">
-      <header>
-        <p className="text-[11px] uppercase tracking-[0.24em] text-primary">Live derived status</p>
-        <h1 className="font-display text-4xl">The board</h1>
-        <p className="mt-1 text-sm text-muted">
-          Derived status drives the gate. CLEAR goes to the job. HOLD does not. Same kernel as a voidable invoice:
-          the original document is the only evidence.
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.24em] text-primary">6 a.m. desk</p>
+          <h1 className="font-display text-4xl">Dashboard</h1>
+          <p className="mt-1 max-w-xl text-sm text-muted">
+            Gate and books on one page. HOLD does not enter. Open dollars feed Chase. The clerk reads both.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Link to="/app/chase">
+            <Button className="min-h-11">Chase</Button>
+          </Link>
+          <Link to="/app/clerk">
+            <Button tone="ghost" className="min-h-11">
+              Clerk
+            </Button>
+          </Link>
+        </div>
       </header>
-      {q.isLoading ? (
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
-          {["compliant", "expiring", "expired", "missing", "insufficient"].map((k) => (
-            <div key={k} className="min-h-24 animate-pulse border border-border bg-raised p-4">
-              <div className="text-[11px] uppercase tracking-wider text-muted">{k}</div>
-            </div>
-          ))}
+
+      {q.isLoading ? <div className="h-28 animate-pulse border border-border bg-raised" /> : null}
+      <BoardError error={q.error} />
+
+      {data && data.vendors.length === 0 ? (
+        <div className="border border-dashed border-border p-8">
+          <p className="font-display text-3xl">Empty dashboard. Dead product.</p>
+          <p className="mt-2 max-w-lg text-sm text-muted">
+            Load Iron Ridge — expired GL, HOLD at the gate — or add a sub. Do not sit on a blank board.
+          </p>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+            <Button onClick={() => seed.mutate()} disabled={seed.isPending} className="min-h-12">
+              {seed.isPending ? "Loading sample…" : "Load sample jobsite"}
+            </Button>
+            <Link to="/app/vendors">
+              <Button tone="ghost" className="min-h-12">
+                Add a sub
+              </Button>
+            </Link>
+          </div>
+          <BoardError error={seed.error} />
         </div>
       ) : null}
-      <BoardError error={q.error} />
-      {data ? (
+
+      {data && data.vendors.length > 0 ? (
         <>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
-            {Object.entries(data.counts).map(([k, v]) => (
-              <div key={k} className="border border-border bg-surface p-4">
-                <div className="text-[11px] uppercase tracking-wider text-muted">{k}</div>
-                <div className="font-display text-3xl">{v}</div>
-              </div>
-            ))}
+            <Kpi label="HOLD" value={String(hold.length)} tone={hold.length ? "bad" : "ok"} />
+            <Kpi label="WATCH" value={String(watch.length)} tone={watch.length ? "warn" : "muted"} />
+            <Kpi label="CLEAR" value={String(clear.length)} tone="ok" />
+            <Kpi label="Open" value={money(openCents)} tone={openCents > 0 ? "warn" : "ok"} />
+            <Kpi label="Billed" value={money(billedCents)} tone="muted" />
           </div>
-          {(() => {
-            const hold = data.vendors.filter((v) => v.gate === "hold").length;
-            const watch = data.vendors.filter((v) => v.gate === "watch").length;
-            if (!data.vendors.length) return null;
-            return (
-              <section className="border border-border bg-surface p-4">
-                <p className="font-display text-2xl">
-                  {hold === 0
-                    ? watch
-                      ? `${watch} on the 30-day clock. Everyone else may enter.`
-                      : `${data.vendors.length} clear. The gate is open.`
-                    : `${hold} cannot enter the job today.`}
+
+          <p className="font-display text-2xl">
+            {hold.length
+              ? `${hold.length} cannot enter the job today.`
+              : watch.length
+                ? `${watch.length} on the 30-day clock. The fence is otherwise open.`
+                : `${clear.length} clear. The gate is open.`}
+            {openCents > 0 ? ` ${money(openCents)} still open on the books.` : ""}
+          </p>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <section className="border border-border bg-surface">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <h2 className="font-display text-2xl">Gate</h2>
+                <Link to="/app/certificates" className="text-xs text-primary underline">
+                  Certs
+                </Link>
+              </div>
+              <ul>
+                {data.vendors.map((v) => (
+                  <li key={v.vendorId} className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-0">
+                    <div className="min-w-0">
+                      <div className="truncate font-medium">{v.vendorName}</div>
+                      <div className="truncate text-xs text-muted">{v.summary}</div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {v.clockDays != null ? (
+                        <span className="text-xs tabular-nums text-muted">
+                          {v.clockDays < 0 ? Math.abs(v.clockDays) + "d past" : v.clockDays + "d"}
+                        </span>
+                      ) : null}
+                      <span
+                        className={
+                          v.gate === "hold" ? "font-display text-xl text-bad" : v.gate === "watch" ? "font-display text-xl text-warn" : "font-display text-xl text-ok"
+                        }
+                      >
+                        {v.gate.toUpperCase()}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="border border-border bg-surface">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <h2 className="font-display text-2xl">Finance</h2>
+                <Link to="/app/books" className="text-xs text-primary underline">
+                  Post a line
+                </Link>
+              </div>
+              {bookRows.length === 0 || billedCents + paidCents === 0 ? (
+                <p className="px-4 py-6 text-sm text-muted">
+                  No invoices yet. Post a pay app on Finance. Remaining will show here and prefill Chase.
                 </p>
-                <p className="mt-1 text-sm text-muted">
-                  Superintendent question: who goes through the fence at 6am.{" "}
-                  {hold > 0 ? (
-                    <Link to="/app/chase" className="text-primary underline">
-                      Chase the HOLD
-                    </Link>
-                  ) : null}{" "}
-                  <Link to="/app/clerk" className="text-primary underline">
-                    Ask the clerk
-                  </Link>
-                </p>
-              </section>
-            );
-          })()}
+              ) : (
+                <ul className="space-y-3 p-4">
+                  <li className="flex justify-between text-sm text-muted">
+                    <span>Paid {money(paidCents)}</span>
+                    <span>Open {money(openCents)}</span>
+                  </li>
+                  {bookRows.map((r) => (
+                    <li key={r.id}>
+                      <div className="mb-1 flex justify-between text-sm">
+                        <span>{r.name}</span>
+                        <span className={r.remaining > 0 ? "text-warn" : "text-muted"}>{money(r.remaining)}</span>
+                      </div>
+                      <div className="h-2 bg-raised">
+                        <div
+                          className="fin-bar h-2"
+                          style={{ width: `${Math.min(100, (r.billed / Math.max(billedCents, 1)) * 100)}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+
           {data.alerts.length > 0 ? (
             <section className="border border-bad/40 bg-surface p-4">
               <h2 className="font-display text-xl text-bad">Would email today</h2>
-              <p className="text-xs text-muted">SMTP is not live in this staging preview. Production worker sends these.</p>
+              <p className="text-xs text-muted">SMTP is not live in this preview.</p>
               <ul className="mt-3 space-y-2">
                 {data.alerts.map((a) => (
                   <li key={a.vendor} className="flex flex-wrap items-center gap-2 text-sm">
@@ -89,64 +180,18 @@ function Board() {
               </ul>
             </section>
           ) : null}
-          <section className="space-y-2">
-            {data.vendors.length === 0 ? (
-              <div className="border border-dashed border-border p-8">
-                <p className="font-display text-3xl">The board is empty. That is a dead product.</p>
-                <p className="mt-2 max-w-lg text-sm text-muted">
-                  Load the Iron Ridge sample — expired GL, HOLD at the gate — or add a real sub. Do not sit on a blank
-                  dashboard.
-                </p>
-                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <Button onClick={() => seed.mutate()} disabled={seed.isPending} className="min-h-12">
-                    {seed.isPending ? "Loading sample…" : "Load sample jobsite (expired GL)"}
-                  </Button>
-                  <Link to="/app/vendors">
-                    <Button tone="ghost" className="min-h-12 w-full sm:w-auto">
-                      Add a sub
-                    </Button>
-                  </Link>
-                </div>
-                <BoardError error={seed.error} />
-              </div>
-            ) : (
-              data.vendors.map((v) => (
-                <Link
-                  key={v.vendorId}
-                  to="/app/vendors"
-                  className="flex flex-wrap items-center justify-between gap-3 border border-border bg-surface px-4 py-3 hover:bg-raised"
-                >
-                  <div>
-                    <div className="font-medium">{v.vendorName}</div>
-                    <div className="text-sm text-muted">{v.summary}</div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={`inline-flex rounded-sm border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${
-                        v.gate === "clear"
-                          ? "border-ok/40 text-ok"
-                          : v.gate === "watch"
-                            ? "border-warn/40 text-warn"
-                            : "border-bad/40 text-bad"
-                      }`}
-                    >
-                      {v.gate === "clear" ? "Dispatch clear" : v.gate === "watch" ? "Dispatch watch" : "Dispatch hold"}
-                    </span>
-                    {v.clockDays != null ? (
-                      <span className="text-xs tabular-nums text-muted">
-                        {v.clockDays < 0 ? Math.abs(v.clockDays) + "d past" : v.clockDays + "d on clock"}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted">no date</span>
-                    )}
-                    <StatusChip status={v.status} />
-                  </div>
-                </Link>
-              ))
-            )}
-          </section>
         </>
       ) : null}
+    </div>
+  );
+}
+
+function Kpi({ label, value, tone }: { label: string; value: string; tone: "ok" | "warn" | "bad" | "muted" }) {
+  const color = tone === "ok" ? "text-ok" : tone === "warn" ? "text-warn" : tone === "bad" ? "text-bad" : "text-fg";
+  return (
+    <div className="border border-border bg-surface p-4">
+      <div className="text-[11px] uppercase tracking-wider text-muted">{label}</div>
+      <div className={`font-display text-3xl tabular-nums ${color}`}>{value}</div>
     </div>
   );
 }

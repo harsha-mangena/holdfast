@@ -1,6 +1,20 @@
 import { chaseScript } from "./chase";
 import type { VendorResult } from "./compliance";
 
+export function speakable(text: string): string {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/_([^_]+)_/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*]\s+/gm, "• ")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export type ClerkTurn = { role: "user" | "clerk"; text: string };
 
 function boardText(org: string, vendors: VendorResult[]): string {
@@ -70,14 +84,14 @@ Rules:
 - If asked to clear someone, refuse. Confirm is human. Status is computed.
 - Chase scripts: paper from the board, or pay only if the user typed an amount. Never invent dollars.
 - You are not a collections agency. You draft what the GC was going to say anyway.
-- Short. Superintendent English. No emojis.`,
+- Short. Superintendent English. No emojis. No markdown. No asterisks. Plain sentences.`,
         },
         ...history.slice(-6).map((t) => ({ role: t.role === "clerk" ? "assistant" : "user", content: t.text })),
         { role: "user", content: question },
       ],
     }),
   });
-  if (!res.ok) return localClerk(question, org, vendors) ?? "Clerk is down. Use the board.";
+  if (!res.ok) return speakable(localClerk(question, org, vendors) ?? "Clerk is down. Use the board.");
   const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  return body.choices?.[0]?.message?.content?.trim() || "No answer.";
+  return speakable(body.choices?.[0]?.message?.content?.trim() || "No answer.");
 }

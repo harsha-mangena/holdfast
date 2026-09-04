@@ -4,6 +4,7 @@ import { humanBoard } from "./errors";
 import { getSql } from "@/lib/db";
 import { extractCertificate } from "./extract";
 import { extractPay } from "./extract-pay";
+import { envCarrier, placePstn } from "./dial";
 import { computeVendor, SEVERITY } from "./compliance";
 import { grokClerk, localClerk, type ClerkTurn } from "./clerk";
 import { sampleAcordPdfBase64, SAMPLE_EXTRACTION } from "./sample-pdf";
@@ -25,6 +26,9 @@ async function audit(sql: Awaited<ReturnType<typeof getSql>>, userId: string, ac
 
 async function ensureSchema(sql: Awaited<ReturnType<typeof getSql>>) {
   await sql.query("alter table hf_vendors add column if not exists phone text");
+  await sql.query("alter table hf_orgs add column if not exists twilio_sid text");
+  await sql.query("alter table hf_orgs add column if not exists twilio_token text");
+  await sql.query("alter table hf_orgs add column if not exists twilio_from text");
   await sql.query(`
     create table if not exists hf_pay_lines (
       id text primary key,
@@ -180,7 +184,7 @@ export const seedSampleJob = createServerFn({ method: "POST" })
     if (existing[0]) return { vendorId: existing[0].id, reused: true };
     const vid = id();
     await sql`insert into hf_vendors (id, user_id, name, trade, contact_email, phone)
-      values (${vid}, ${context.userId}, ${"Iron Ridge Electric"}, ${"Electrical"}, ${"ops@ironridge.example"}, ${"555-0144"})`;
+      values (${vid}, ${context.userId}, ${"Iron Ridge Electric"}, ${"Electrical"}, ${"ops@ironridge.example"}, ${"+15550144"})`;
     const cid = id();
     const pdf = sampleAcordPdfBase64();
     const extraction = JSON.stringify(SAMPLE_EXTRACTION);
@@ -229,6 +233,36 @@ export const saveVendor = createServerFn({ method: "POST" })
       values (${vid}, ${context.userId}, ${name}, ${data.trade ?? null}, ${data.contactEmail ?? null}, ${phone})`;
     await audit(sql, context.userId, "vendor.create", name);
     return { id: vid };
+  });
+
+export const importVendors = createServerFn({ method: "POST" })
+  .middleware([authMiddleware, humanBoard])
+  .validator((input: { rows: { name: string; trade?: string; contactEmail?: string; phone?: string }[] }) => input)
+  .handler(async ({ context, data }) => {
+    const sql = await getSql();
+    await ensureOrg(sql, context.userId);
+    const existing = await sql<{ name: string }>`select name from hf_vendors where user_id = ${context.userId}`;
+    const have = new Set(existing.map((r) => r.name.trim().toLowerCase()));
+    let created = 0;
+    let skipped = 0;
+    for (const row of data.rows) {
+      const name = row.name.trim();
+      if (!name) {
+        skipped += 1;
+        continue;
+      }
+      const k = name.toLowerCase();
+      if (have.has(k)) {
+        skipped += 1;
+        continue;
+      }
+      have.add(k);
+      await sql`insert into hf_vendors (id, user_id, name, trade, contact_email, phone)
+        values (${id()}, ${context.userId}, ${name}, ${row.trade?.trim() || null}, ${row.contactEmail?.trim() || null}, ${row.phone?.trim() || null})`;
+      created += 1;
+    }
+    if (created) await audit(sql, context.userId, "vendor.import", created + " subs from spreadsheet");
+    return { created, skipped };
   });
 
 export const listRequirements = createServerFn({ method: "GET" })
@@ -644,3 +678,54 @@ export const extractPayLive = createServerFn({ method: "POST" })
   .middleware([authMiddleware, humanBoard])
   .validator((input: { text: string; images?: string[] }) => input)
   .handler(async ({ data }) => extractPay(data.text, data.images ?? []));
+
+export const placeChaseCall = createServerFn({ method: "POST" })
+  .middleware([authMiddleware, humanBoard])
+  .validator((input: { phone: string; script: string; vendor: string }) => input)
+  .handler(async ({ context, data }) => {
+    const sql = await getSql();
+    await ensureOrg(sql, context.userId);
+    const row = await sql<{ twilio_sid: string | null; twilio_token: string | null; twilio_from: string | null }>`
+      select twilio_sid, twilio_token, twilio_from from hf_orgs where user_id = ${context.userId}`;
+    const stored =
+      row[0]?.twilio_sid && row[0].twilio_token && row[0].twilio_from
+        ? { sid: row[0].twilio_sid, token: row[0].twilio_token, from: row[0].twilio_from }
+        : null;
+    const result = await placePstn(data.phone, data.script, stored ?? envCarrier());
+    await audit(sql, context.userId, "chase.call", data.vendor + " " + result.mode);
+    return result;
+  });
+
+export const carrierStatus = createServerFn({ method: "GET" })
+  .middleware([authMiddleware, humanBoard])
+  .handler(async ({ context }) => {
+    const sql = await getSql();
+    await ensureOrg(sql, context.userId);
+    const row = await sql<{ twilio_sid: string | null; twilio_from: string | null }>`
+      select twilio_sid, twilio_from from hf_orgs where user_id = ${context.userId}`;
+    const env = envCarrier();
+    const from = row[0]?.twilio_from || env?.from || null;
+    const connected = Boolean((row[0]?.twilio_sid && row[0]?.twilio_from) || env);
+    return {
+      connected,
+      source: row[0]?.twilio_sid ? "office" : env ? "env" : "none",
+      from,
+    };
+  });
+
+export const saveCarrier = createServerFn({ method: "POST" })
+  .middleware([authMiddleware, humanBoard])
+  .validator((input: { sid: string; token: string; from: string }) => input)
+  .handler(async ({ context, data }) => {
+    const sid = data.sid.trim();
+    const token = data.token.trim();
+    const from = data.from.trim();
+    if (!sid.startsWith("AC") || sid.length < 30) throw new Error("That does not look like a Twilio Account SID.");
+    if (token.length < 20) throw new Error("That does not look like a Twilio Auth Token.");
+    if (!from.replace(/\D/g, "").length) throw new Error("From-number is required, like +15551234567.");
+    const sql = await getSql();
+    await ensureOrg(sql, context.userId);
+    await sql`update hf_orgs set twilio_sid = ${sid}, twilio_token = ${token}, twilio_from = ${from} where user_id = ${context.userId}`;
+    await audit(sql, context.userId, "carrier.save", from);
+    return { ok: true, from };
+  });

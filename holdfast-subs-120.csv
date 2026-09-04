@@ -1,0 +1,132 @@
+company,trade,email,phone
+Iron Ridge Electric,Electrical,ops@ironridge.example,+15550144001
+Apex Concrete,Concrete,office@apexconcrete.example,+15550144002
+Northline Steel,Structural steel,shop@northlinesteel.example,+15550144003
+Harbor Mechanical,HVAC,dispatch@harbormechanical.example,+15550144004
+Cedar & Stone Masonry,Masonry,bids@cedarstone.example,+15550144005
+Pacific Drywall,Drywall,crew@pacificdrywall.example,+15550144006
+Red Oak Flooring,Flooring,hello@redoakfloor.example,+15550144007
+Summit Roofing,Roofing,jobs@summitroof.example,+15550144008
+Blue River Plumbing,Plumbing,shop@blueriverplumb.example,+15550144009
+Atlas Fire Protection,Fire sprinkler,ops@atlasfire.example,+15550144010
+Keystone Glazing,Glass and glazing,estimating@keystoneglaze.example,+15550144011
+Pioneer Painting,Painting,office@pioneerpaint.example,+15550144012
+Granite State Tile,Tile,info@granitestate.example,+15550144013
+Westfork Excavation,Earthwork,dispatch@westforkex.example,+15550144014
+Miller Rebar,Reinforcing steel,yard@millerrebar.example,+15550144015
+Canyon Insulation,Insulation,office@canyoninsul.example,+15550144016
+Lakeside Waterproofing,Waterproofing,jobs@lakesidewp.example,+15550144017
+Horizon Elevator,Elevators,service@horizonelev.example,+15550144018
+Sparrow Acoustics,Ceilings,bids@sparrowacoustics.example,+15550144019
+Copperline Electric,Electrical,ops@copperline.example,+15550144020
+Ridgeway Carpentry,Rough carpentry,shop@ridgewaycarp.example,+15550144021
+Oak & Iron Millwork,Finish carpentry,studio@oakiron.example,+15550144022
+Delta Sheet Metal,Sheet metal,fab@deltasheet.example,+15550144023
+Prairie Landscaping,Landscaping,crew@prairieland.example,+15550144024
+Bolt & Anchor,Miscellaneous metals,shop@boltanchor.example,+15550144025
+Clearspan Precast,Precast concrete,yard@clearspan.example,+15550144026
+Nightwatch Security Systems,Low voltage,ops@nightwatchlv.example,+15550144027
+Southbay Paving,Asphalt,dispatch@southbaypave.example,+15550144028
+True North Surveying,Survey,field@truenorthsurv.example,+15550144029
+Harborline Caulking,Sealants,office@harborlinecaulk.example,+15550144030
+Ember Mechanical,HVAC,service@embermech.example,+15550144031
+Silver Creek Electric,Electrical,ops@silvercreekel.example,+15550144032
+Foothill Framing,Framing,crew@foothillframe.example,+15550144033
+Riverbend Masonry,Masonry,shop@riverbendmas.example,+15550144034
+Northstar Glass,Glazing,estimating@northstarglass.example,+15550144035
+Pinecrest Painting,Painting,office@pinecrestpaint.example,+15550144036
+Alder Roofing,Roofing,jobs@alderroof.example,+15550144037
+Metro Fire Stop,Firestopping,ops@metrofirestop.example,+15550144038
+Beacon Signage,Signage,studio@beaconsign.example,+15550144039
+Tidal Plumbing,Plumbing,dispatch@tidalplumb.example,+15550144040
+Quarry Stoneworks,Stone,yard@quarrystone.example,+15550144041
+Windmill Windows,Windows,shop@windmillwin.example,+15550144042
+Ashford Doors,Doors and hardware,office@ashforddoors.example,+15550144043
+Redline Striping,Pavement marking,crew@redlinestripe.example,+15550144044
+Basin Drilling,Drilled piers,field@basindrill.example,+15550144045
+Cove Acoustical,Acoustical,bids@coveacoustical.example,+15550144046
+Ironwood Welding,Structural steel,shop@ironwoodweld.example,+15550144047
+Sunbelt Stucco,Stucco,crew@sunbeltstucco.example,+15550144048
+Maple Line Cabinets,Casework,studio@mapleline.example,+15550144049
+Harbor Tile,Tile,office@harbortile.example,+15550144050
+Peak Scaffold,Scaffolding,yard@peakscaffold.example,+15550144051
+Eastern Overhead Door,Overhead doors,service@easternohd.example,+15550144052
+Blackwater Dewatering,Dewatering,ops@blackwaterdw.example,+15550144053
+Sierra Electric,Electrical,ops@sierraelectric.example,+15550144054
+Canyon Mechanical,HVAC,dispatch@canyonmech.example,+15550144055
+Brookside Plumbing,Plumbing,shop@brooksideplumb.example,+15550144056
+Forge & Frame,Miscellaneous metals,fab@forgeframe.example,+15550144057
+Lumen Lighting,Electrical,jobs@lumenlight.example,+15550144058
+Redwood Decking,Carpentry,crew@redwooddeck.example,+15550144059
+Arctic Insulation,Insulation,office@arcticinsul.example,+15550144060
+Gulf Coast Waterproofing,Waterproofing,ops@gulfcoastwp.example,+15550144061
+Pioneer Earthwork,Earthwork,dispatch@pioneerearth.example,+15550144062
+Summit Precast,Precast,yard@summitprecast.example,+15550144063
+Cedarline Drywall,Drywall,crew@cedarlinedw.example,+15550144064
+Northfork Roofing,Roofing,jobs@northforkroof.example,+15550144065
+Atlas Rebar,Reinforcing steel,shop@atlasrebar.example,+15550144066
+Harborline Mechanical,HVAC,service@harborlinemech.example,+15550144067
+Keystone Electric,Electrical,ops@keystoneel.example,+15550144068
+Prairie Fire Protection,Fire sprinkler,ops@prairiefire.example,+15550144069
+Oakridge Flooring,Flooring,hello@oakridgefloor.example,+15550144070
+Blue Mesa Masonry,Masonry,shop@bluemesamas.example,+15550144071
+Westwind Glazing,Glazing,estimating@westwindglaze.example,+15550144072
+Copper River Plumbing,Plumbing,dispatch@copperriverpl.example,+15550144073
+Granite Peak Steel,Structural steel,shop@granitepeakst.example,+15550144074
+Lakeshore Landscaping,Landscaping,crew@lakeshoreland.example,+15550144075
+Nightowl Low Voltage,Low voltage,ops@nightowllv.example,+15550144076
+Redrock Paving,Asphalt,dispatch@redrockpave.example,+15550144077
+Silverline Painting,Painting,office@silverlinepaint.example,+15550144078
+Trueform Millwork,Finish carpentry,studio@trueformmw.example,+15550144079
+Canyon Tile,Tile,info@canyontile.example,+15550144080
+Ember Firestop,Firestopping,ops@emberfirestop.example,+15550144081
+Harbor Survey,Survey,field@harborsurvey.example,+15550144082
+Pinebox Carpentry,Rough carpentry,shop@pineboxcarp.example,+15550144083
+Delta Mechanical,HVAC,service@deltamech.example,+15550144084
+Northline Electric,Electrical,ops@northlineel.example,+15550144085
+Apex Excavation,Earthwork,dispatch@apexex.example,+15550144086
+Riverstone Waterproofing,Waterproofing,jobs@riverstonewp.example,+15550144087
+Summit Glass,Glazing,estimating@summitglass.example,+15550144088
+Cedar Peak Roofing,Roofing,jobs@cedarpeakroof.example,+15550144089
+Blue Ridge Drywall,Drywall,crew@blueridgedw.example,+15550144090
+Ironclad Metals,Miscellaneous metals,fab@ironcladmetals.example,+15550144091
+Pacific Sheet Metal,Sheet metal,shop@pacificsm.example,+15550144092
+Foothill Insulation,Insulation,office@foothillinsul.example,+15550144093
+Lakeside Elevator,Elevators,service@lakesideelev.example,+15550144094
+Sparrow Ceilings,Ceilings,bids@sparrowceil.example,+15550144095
+Quarry Masonry,Masonry,yard@quarrymas.example,+15550144096
+Tidal Mechanical,HVAC,dispatch@tidalmech.example,+15550144097
+Beacon Electric,Electrical,ops@beaconelectric.example,+15550144098
+Windfall Windows,Windows,shop@windfallwin.example,+15550144099
+Ashlar Stone,Stone,office@ashlarstone.example,+15550144100
+Redline Concrete,Concrete,crew@redlineconc.example,+15550144101
+Basin Foundations,Foundations,field@basinfound.example,+15550144102
+Cove Drywall,Drywall,bids@covedrywall.example,+15550144103
+Sunbelt Roofing,Roofing,jobs@sunbeltroof.example,+15550144104
+Maple River Cabinets,Casework,studio@maplerivercab.example,+15550144105
+Peak Access,Scaffolding,yard@peakaccess.example,+15550144106
+Eastern Dock,Loading docks,service@easterndock.example,+15550144107
+Black Pine Logging,Site clearing,ops@blackpine.example,+15550144108
+Sierra Plumbing,Plumbing,shop@sierraplumb.example,+15550144109
+Canyon Fire Protection,Fire sprinkler,ops@canyonfire.example,+15550144110
+Brookline Tile,Tile,office@brooklinetile.example,+15550144111
+Forge Welding,Structural steel,fab@forgeweld.example,+15550144112
+Lumen Low Voltage,Low voltage,jobs@lumenlv.example,+15550144113
+Redwood Framing,Framing,crew@redwoodframe.example,+15550144114
+Arctic Mechanical,HVAC,office@arcticmech.example,+15550144115
+Gulf Electric,Electrical,ops@gulfelectric.example,+15550144116
+Pioneer Paving,Asphalt,dispatch@pioneerpave.example,+15550144117
+Summit Waterproofing,Waterproofing,jobs@summitwp.example,+15550144118
+Cedar Mechanical,HVAC,service@cedarmech.example,+15550144119
+Northfork Electric,Electrical,ops@northforkel.example,+15550144120
+Atlas Concrete,Concrete,yard@atlasconcrete.example,+15550144121
+Harborline Glass,Glazing,estimating@harborlineglaze.example,+15550144122
+Keystone Plumbing,Plumbing,dispatch@keystoneplumb.example,+15550144123
+Prairie Earthwork,Earthwork,crew@prairieearth.example,+15550144124
+Oak & Cedar Millwork,Finish carpentry,studio@oakcedar.example,+15550144125
+Blue Mesa Steel,Structural steel,shop@bluemesasteel.example,+15550144126
+Westwind Painting,Painting,office@westwindpaint.example,+15550144127
+Copperline Mechanical,HVAC,service@copperlinemech.example,+15550144128
+Granite Flooring,Flooring,hello@granitefloor.example,+15550144129
+Lakeshore Electric,Electrical,ops@lakeshoreel.example,+15550144130
+Nightwatch Fire Alarm,Fire alarm,ops@nightwatchfa.example,+15550144131

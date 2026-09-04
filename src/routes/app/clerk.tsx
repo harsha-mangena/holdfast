@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { askClerk } from "@/lib/holdfast/actions";
-import type { ClerkTurn } from "@/lib/holdfast/clerk";
+import { speakable, type ClerkTurn } from "@/lib/holdfast/clerk";
 import { BoardError, Button, Input } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/clerk")({ component: Clerk });
@@ -80,7 +80,7 @@ function Clerk() {
             <div className="text-[10px] uppercase tracking-[0.18em] text-primary">
               {t.role === "clerk" ? "Clerk" : "Trailer"}
             </div>
-            <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{t.text}</p>
+            <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{speakable(t.text)}</p>
           </li>
         ))}
         {ask.isPending ? (

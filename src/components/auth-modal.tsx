@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { Button, Field, Input } from "@/components/ui-kit";
@@ -15,6 +16,7 @@ export function AuthModal({
   onClose: () => void;
   onAuthed?: () => void;
 }) {
+  const nav = useNavigate();
   const { user, isPending } = useCurrentUserState();
   const [mode, setMode] = useState<"in" | "up">("up");
   const [email, setEmail] = useState("");
@@ -56,12 +58,19 @@ export function AuthModal({
     setError("");
     try {
       if (mode === "up") {
-        const res = await authClient.signUp.email({ email, password, name: name || email.split("@")[0] });
+        const res = await authClient.signUp.email({
+          email,
+          password,
+          name: name || email.split("@")[0],
+          callbackURL: window.location.origin + "/app",
+        });
         if (res.error) throw new Error(res.error.message);
-      } else {
-        const res = await authClient.signIn.email({ email, password });
-        if (res.error) throw new Error(res.error.message);
+        onClose();
+        void nav({ to: "/verify", search: { email } });
+        return;
       }
+      const res = await authClient.signIn.email({ email, password, callbackURL: "/app" });
+      if (res.error) throw new Error(res.error.message);
       onAuthed?.();
       onClose();
     } catch (err) {

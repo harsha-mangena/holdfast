@@ -10,6 +10,58 @@ function money(cents: number) {
   return (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
 }
 
+function Dash({
+  rows,
+}: {
+  rows: Array<{ id: string; name: string; billed: number; paid: number; remaining: number }>;
+}) {
+  const billed = rows.reduce((s, r) => s + r.billed, 0);
+  const paid = rows.reduce((s, r) => s + r.paid, 0);
+  const open = billed - paid;
+  const max = Math.max(...rows.map((r) => r.billed), 1);
+  return (
+    <section className="border border-border bg-surface p-4">
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          ["Billed", money(billed), "text-fg"],
+          ["Paid", money(paid), "text-ok"],
+          ["Open", money(open), open > 0 ? "text-warn" : "text-ok"],
+        ].map(([k, v, c]) => (
+          <div key={k} className="border border-border bg-bg px-3 py-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted">{k}</div>
+            <div className={`mt-1 font-display text-2xl tabular-nums ${c}`}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <ul className="mt-4 space-y-2">
+        {rows.map((r) => (
+          <li key={r.id}>
+            <div className="mb-1 flex justify-between text-xs">
+              <span>{r.name}</span>
+              <span className={r.remaining > 0 ? "text-warn" : "text-muted"}>{money(r.remaining)}</span>
+            </div>
+            <div className="h-2 overflow-hidden bg-raised">
+              <div className="fin-bar h-2" style={{ width: `${Math.min(100, (r.billed / max) * 100)}%` }} />
+            </div>
+          </li>
+        ))}
+      </ul>
+      {open > 0 ? (
+        <p className="mt-3 text-sm text-muted">
+          Open balance feeds Chase.{" "}
+          <Link to="/app/chase" className="text-primary underline">
+            Call it
+          </Link>
+          {" · "}
+          <Link to="/app/clerk" className="text-primary underline">
+            Ask the clerk
+          </Link>
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 function Books() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["books"], queryFn: () => listBooks() });
@@ -57,13 +109,15 @@ function Books() {
   return (
     <div className="space-y-8">
       <header>
-        <p className="text-[11px] uppercase tracking-[0.24em] text-primary">Reconciliation agent</p>
+        <p className="text-[11px] uppercase tracking-[0.24em] text-primary">Finance desk</p>
         <h1 className="font-display text-4xl">Books</h1>
         <p className="mt-1 max-w-xl text-sm text-muted">
-          Not QuickBooks. A sub-level running balance: invoices you say they billed, payments you say you made.
-          Remaining feeds Chase. The agent reads a pay app. You still post.
+          Invoices and payments per sub. Remaining feeds Chase. The clerk can read this board. The agent drafts a stub
+          — you still post.
         </p>
       </header>
+
+      <Dash rows={q.data ?? []} />
 
       <form onSubmit={onSubmit} className="space-y-3 border border-border bg-surface p-4">
         <div className="grid gap-3 sm:grid-cols-2">

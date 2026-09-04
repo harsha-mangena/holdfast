@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
 import { Button, Field, Input } from "@/components/ui-kit";
 import { userFacing } from "@/lib/holdfast/errors";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/login")({ component: Login });
 
@@ -20,12 +21,18 @@ function Login() {
     setError("");
     try {
       if (mode === "up") {
-        const res = await authClient.signUp.email({ email, password, name: name || email.split("@")[0] });
+        const res = await authClient.signUp.email({
+          email,
+          password,
+          name: name || email.split("@")[0],
+          callbackURL: window.location.origin + "/app",
+        });
         if (res.error) throw new Error(res.error.message);
-      } else {
-        const res = await authClient.signIn.email({ email, password });
-        if (res.error) throw new Error(res.error.message);
+        window.location.assign("/verify?email=" + encodeURIComponent(email));
+        return;
       }
+      const res = await authClient.signIn.email({ email, password, callbackURL: "/app" });
+      if (res.error) throw new Error(res.error.message);
       window.location.assign("/app");
     } catch (err) {
       setError(userFacing(err));
@@ -37,9 +44,12 @@ function Login() {
   return (
     <main className="grid min-h-screen place-items-center bg-bg px-4 text-fg">
       <div className="w-full max-w-sm space-y-5">
-        <Link to="/" className="font-display text-3xl text-primary">
-          HOLDFAST
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link to="/" className="font-display text-3xl text-primary">
+            HOLDFAST
+          </Link>
+          <ThemeToggle />
+        </div>
         <h1 className="font-display text-3xl">Sign in to the board</h1>
         <p className="text-sm text-muted">GCs sign in. We never sell coverage. Staging: use a real account, fake PDFs.</p>
         {authEnabled ? (
