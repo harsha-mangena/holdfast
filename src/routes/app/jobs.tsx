@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
-import { ingestInvite, listJobs, seedSampleJob } from "@/lib/holdfast/actions";
+import { ingestInvite, listJobs, seedPreconJobs } from "@/lib/holdfast/jobs-fn";
+import { seedSampleJob } from "@/lib/holdfast/actions";
 import { SAMPLE_ITB } from "@/lib/holdfast/precon";
 import { BoardError, Button } from "@/components/ui-kit";
 
@@ -20,7 +21,10 @@ function Jobs() {
     },
   });
   const seed = useMutation({
-    mutationFn: () => seedSampleJob(),
+    mutationFn: async () => {
+      await seedSampleJob();
+      await seedPreconJobs();
+    },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["jobs"] });
       void qc.invalidateQueries({ queryKey: ["dashboard"] });

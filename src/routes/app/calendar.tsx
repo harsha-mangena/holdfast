@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { listCalendar } from "@/lib/holdfast/actions";
+import { listCalendar } from "@/lib/holdfast/jobs-fn";
 import { BoardError } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/calendar")({ component: CalendarPage });
