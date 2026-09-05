@@ -9,17 +9,17 @@ export const Route = createFileRoute("/app/clerk")({ component: Clerk });
 
 const STARTERS = [
   "Who cannot enter the job today?",
-  "Who is on the 30-day clock?",
-  "Draft the chase script for anyone on HOLD.",
+  "Which trades are thin?",
+  "Should we bid Northfork?",
+  "What did the invite skip?",
   "What is still open on the books?",
-  "Clear Iron Ridge for me.",
 ];
 
 function Clerk() {
   const [turns, setTurns] = useState<ClerkTurn[]>([
     {
       role: "clerk",
-      text: "Radio's up. I only see this board. I cannot CLEAR anyone. Ask who is HOLD, who is WATCH, or for a chase script.",
+      text: "Radio's up. I see the gate, the invitations, and the books. I cannot CLEAR anyone. Ask who is HOLD, which trade is thin, or whether to bid.",
     },
   ]);
   const [q, setQ] = useState("");
@@ -47,10 +47,9 @@ function Clerk() {
     <div className="flex min-h-[70vh] flex-col">
       <header className="mb-4">
         <p className="text-[11px] uppercase tracking-[0.24em] text-primary">Grounded copilot</p>
-        <h1 className="font-display text-4xl">The clerk</h1>
+        <h1 className="font-display text-4xl">Ask the pack</h1>
         <p className="mt-1 max-w-xl text-sm text-muted">
-          Looks like a radio, not ChatGPT. Reads the derived board. Will not invent a limit. Will not collect money.
-          Last prompt in the list is a trap — it should refuse.
+          Grounded in this board, the invitations, and the books. Will not invent a limit. Will not stamp CLEAR.
         </p>
       </header>
 
