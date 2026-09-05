@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { listBooks, listDashboard, seedSampleJob } from "@/lib/holdfast/actions";
+import { listBooks, listDashboard, listVendors, seedSampleJob } from "@/lib/holdfast/actions";
+import { seedPreconJobs } from "@/lib/holdfast/jobs-fn";
+import { tradeCoverage } from "@/lib/holdfast/precon";
 import { BoardError, Button, StatusChip } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/app/")({ component: Board });
@@ -13,8 +15,12 @@ function Board() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["dashboard"], queryFn: () => listDashboard() });
   const books = useQuery({ queryKey: ["books"], queryFn: () => listBooks() });
+  const vendorList = useQuery({ queryKey: ["vendors"], queryFn: () => listVendors() });
   const seed = useMutation({
-    mutationFn: () => seedSampleJob(),
+    mutationFn: async () => {
+      await seedSampleJob();
+      await seedPreconJobs();
+    },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["dashboard"] });
       void qc.invalidateQueries({ queryKey: ["vendors"] });
@@ -32,6 +38,14 @@ function Board() {
   const hold = data?.vendors.filter((v) => v.gate === "hold") ?? [];
   const watch = data?.vendors.filter((v) => v.gate === "watch") ?? [];
   const clear = data?.vendors.filter((v) => v.gate === "clear") ?? [];
+  const trades = tradeCoverage(
+    (vendorList.data ?? [])
+      .filter((v) => v.active)
+      .map((v) => ({
+        trade: v.trade,
+        gate: data?.vendors.find((x) => x.vendorId === v.id)?.gate ?? "hold",
+      })),
+  );
 
   return (
     <div className="space-y-8">
@@ -83,9 +97,9 @@ function Board() {
           <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
             <Kpi label="HOLD" value={String(hold.length)} tone={hold.length ? "bad" : "ok"} />
             <Kpi label="WATCH" value={String(watch.length)} tone={watch.length ? "warn" : "muted"} />
-            <Kpi label="CLEAR" value={String(clear.length)} tone="ok" />
+            <Kpi label="CLEAR" value={String(clear.length)} tone="ok"} />
             <Kpi label="Open" value={money(openCents)} tone={openCents > 0 ? "warn" : "ok"} />
-            <Kpi label="Billed" value={money(billedCents)} tone="muted" />
+            <Kpi label="Billed" value={money(billedCents)} tone="muted"} />
           </div>
 
           <p className="font-display text-2xl">
@@ -97,7 +111,7 @@ function Board() {
             {openCents > 0 ? ` ${money(openCents)} still open on the books.` : ""}
           </p>
 
-          {data.trades?.length ? (
+          {trades.length ? (
             <section>
               <div className="mb-2 flex items-center justify-between">
                 <h2 className="font-display text-2xl">Coverage by trade</h2>
@@ -106,7 +120,7 @@ function Board() {
                 </Link>
               </div>
               <div className="grid gap-2 sm:grid-cols-3">
-                {data.trades.map((t) => (
+                {trades.map((t) => (
                   <div key={t.trade} className="border border-border bg-surface p-3">
                     <div className="text-[10px] uppercase tracking-wider text-muted">{t.band} coverage</div>
                     <div className="font-display text-xl">{t.trade}</div>
