@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as DemoRouteImport } from './routes/demo'
+import { Route as LiveRouteImport } from './routes/live'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -19,9 +20,11 @@ import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppAccountRouteImport } from './routes/app/account'
 import { Route as AppBooksRouteImport } from './routes/app/books'
+import { Route as AppCalendarRouteImport } from './routes/app/calendar'
 import { Route as AppCertificatesRouteImport } from './routes/app/certificates'
 import { Route as AppChaseRouteImport } from './routes/app/chase'
 import { Route as AppClerkRouteImport } from './routes/app/clerk'
+import { Route as AppJobsRouteImport } from './routes/app/jobs'
 import { Route as AppRequirementsRouteImport } from './routes/app/requirements'
 import { Route as AppSettingsRouteImport } from './routes/app/settings'
 import { Route as AppVendorsRouteImport } from './routes/app/vendors'
@@ -41,6 +44,11 @@ const AppRoute = AppRouteImport.update({
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
   path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveRoute = LiveRouteImport.update({
+  id: '/live',
+  path: '/live',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -78,6 +86,11 @@ const AppBooksRoute = AppBooksRouteImport.update({
   path: '/books',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCalendarRoute = AppCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCertificatesRoute = AppCertificatesRouteImport.update({
   id: '/certificates',
   path: '/certificates',
@@ -91,6 +104,11 @@ const AppChaseRoute = AppChaseRouteImport.update({
 const AppClerkRoute = AppClerkRouteImport.update({
   id: '/clerk',
   path: '/clerk',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppJobsRoute = AppJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRequirementsRoute = AppRequirementsRouteImport.update({
@@ -123,15 +141,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/demo': typeof DemoRoute
+  '/live': typeof LiveRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
   '/app/account': typeof AppAccountRoute
   '/app/books': typeof AppBooksRoute
+  '/app/calendar': typeof AppCalendarRoute
   '/app/certificates': typeof AppCertificatesRoute
   '/app/chase': typeof AppChaseRoute
   '/app/clerk': typeof AppClerkRoute
+  '/app/jobs': typeof AppJobsRoute
   '/app/requirements': typeof AppRequirementsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/vendors': typeof AppVendorsRoute
@@ -142,15 +163,18 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
+  '/live': typeof LiveRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
   '/app/account': typeof AppAccountRoute
   '/app/books': typeof AppBooksRoute
+  '/app/calendar': typeof AppCalendarRoute
   '/app/certificates': typeof AppCertificatesRoute
   '/app/chase': typeof AppChaseRoute
   '/app/clerk': typeof AppClerkRoute
+  '/app/jobs': typeof AppJobsRoute
   '/app/requirements': typeof AppRequirementsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/vendors': typeof AppVendorsRoute
@@ -163,15 +187,18 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/demo': typeof DemoRoute
+  '/live': typeof LiveRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
   '/app/account': typeof AppAccountRoute
   '/app/books': typeof AppBooksRoute
+  '/app/calendar': typeof AppCalendarRoute
   '/app/certificates': typeof AppCertificatesRoute
   '/app/chase': typeof AppChaseRoute
   '/app/clerk': typeof AppClerkRoute
+  '/app/jobs': typeof AppJobsRoute
   '/app/requirements': typeof AppRequirementsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/vendors': typeof AppVendorsRoute
@@ -185,15 +212,18 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/demo'
+    | '/live'
     | '/login'
     | '/privacy'
     | '/terms'
     | '/verify'
     | '/app/account'
     | '/app/books'
+    | '/app/calendar'
     | '/app/certificates'
     | '/app/chase'
     | '/app/clerk'
+    | '/app/jobs'
     | '/app/requirements'
     | '/app/settings'
     | '/app/vendors'
@@ -204,15 +234,18 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/demo'
+    | '/live'
     | '/login'
     | '/privacy'
     | '/terms'
     | '/verify'
     | '/app/account'
     | '/app/books'
+    | '/app/calendar'
     | '/app/certificates'
     | '/app/chase'
     | '/app/clerk'
+    | '/app/jobs'
     | '/app/requirements'
     | '/app/settings'
     | '/app/vendors'
@@ -224,15 +257,18 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/demo'
+    | '/live'
     | '/login'
     | '/privacy'
     | '/terms'
     | '/verify'
     | '/app/account'
     | '/app/books'
+    | '/app/calendar'
     | '/app/certificates'
     | '/app/chase'
     | '/app/clerk'
+    | '/app/jobs'
     | '/app/requirements'
     | '/app/settings'
     | '/app/vendors'
@@ -245,6 +281,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   DemoRoute: typeof DemoRoute
+  LiveRoute: typeof LiveRoute
   LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
@@ -273,6 +310,13 @@ declare module '@tanstack/react-router' {
       path: '/demo'
       fullPath: '/demo'
       preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live': {
+      id: '/live'
+      path: '/live'
+      fullPath: '/live'
+      preLoaderRoute: typeof LiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -324,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBooksRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/calendar': {
+      id: '/app/calendar'
+      path: '/calendar'
+      fullPath: '/app/calendar'
+      preLoaderRoute: typeof AppCalendarRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/certificates': {
       id: '/app/certificates'
       path: '/certificates'
@@ -343,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/clerk'
       fullPath: '/app/clerk'
       preLoaderRoute: typeof AppClerkRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/jobs': {
+      id: '/app/jobs'
+      path: '/jobs'
+      fullPath: '/app/jobs'
+      preLoaderRoute: typeof AppJobsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/requirements': {
@@ -386,9 +444,11 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAccountRoute: typeof AppAccountRoute
   AppBooksRoute: typeof AppBooksRoute
+  AppCalendarRoute: typeof AppCalendarRoute
   AppCertificatesRoute: typeof AppCertificatesRoute
   AppChaseRoute: typeof AppChaseRoute
   AppClerkRoute: typeof AppClerkRoute
+  AppJobsRoute: typeof AppJobsRoute
   AppRequirementsRoute: typeof AppRequirementsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppVendorsRoute: typeof AppVendorsRoute
@@ -399,9 +459,11 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRoute: AppAccountRoute,
   AppBooksRoute: AppBooksRoute,
+  AppCalendarRoute: AppCalendarRoute,
   AppCertificatesRoute: AppCertificatesRoute,
   AppChaseRoute: AppChaseRoute,
   AppClerkRoute: AppClerkRoute,
+  AppJobsRoute: AppJobsRoute,
   AppRequirementsRoute: AppRequirementsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppVendorsRoute: AppVendorsRoute,
@@ -415,6 +477,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   DemoRoute: DemoRoute,
+  LiveRoute: LiveRoute,
   LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
