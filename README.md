@@ -1,10 +1,8 @@
 # Holdfast
 
-**COI tracker for general contractors.** An expired certificate is an uninsured claim. Status is derived from the ACORD and your standards — never a typed “compliant” checkbox.
+**The 6 a.m. gate for general contractors.** An expired certificate of insurance is an uninsured claim. Status is derived from the ACORD and your standards — never a typed “compliant” checkbox.
 
-![Demo](docs/readme/demo.gif)
-
-A sub emails a PDF. Holdfast reads it. A human confirms the dates. The board then answers one question: **can they go through the fence today?**
+A sub drops a PDF. Holdfast reads it. A human confirms the dates. The board then answers one question: **can they go through the fence today?**
 
 | Gate | Meaning |
 | --- | --- |
@@ -12,7 +10,7 @@ A sub emails a PDF. Holdfast reads it. A human confirms the dates. The board the
 | **WATCH** | Inside 30 days of expiry |
 | **HOLD** | Expired, missing, or short — do not dispatch |
 
-![The board](docs/readme/08-board-hold.png)
+Jobs, calendar, and coverage-by-trade sit on the same desk. Forward an invitation: bid / no-bid is derived from who is CLEAR in those trades.
 
 Landing demo runs with no account (Iron Ridge Electric, expired GL). Sign in only if you want the board kept overnight.
 

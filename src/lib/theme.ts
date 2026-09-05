@@ -1,7 +1,7 @@
 export type Theme = "light" | "dark";
 const KEY = "hf-theme";
 
-export const THEME_BOOT = `(function(){try{var t=localStorage.getItem("hf-theme");if(t!=="light"&&t!=="dark")t="dark";var d=document.documentElement;d.dataset.theme=t;d.style.colorScheme=t;}catch(e){document.documentElement.dataset.theme="dark";}})();`;
+export const THEME_BOOT = `(function(){try{var t=localStorage.getItem("hf-theme");if(t!=="light"&&t!=="dark")t="light";var d=document.documentElement;d.dataset.theme=t;d.style.colorScheme=t;}catch(e){document.documentElement.dataset.theme="light";}})();`;
 
 export function readTheme(): Theme {
   try {
@@ -10,7 +10,7 @@ export function readTheme(): Theme {
   } catch {
     /* private mode */
   }
-  return "dark";
+  return "light";
 }
 
 export function applyTheme(theme: Theme) {
