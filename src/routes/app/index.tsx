@@ -20,6 +20,8 @@ function Board() {
       void qc.invalidateQueries({ queryKey: ["vendors"] });
       void qc.invalidateQueries({ queryKey: ["certs"] });
       void qc.invalidateQueries({ queryKey: ["books"] });
+      void qc.invalidateQueries({ queryKey: ["jobs"] });
+      void qc.invalidateQueries({ queryKey: ["calendar"] });
     },
   });
   const data = q.data;
@@ -94,6 +96,28 @@ function Board() {
                 : `${clear.length} clear. The gate is open.`}
             {openCents > 0 ? ` ${money(openCents)} still open on the books.` : ""}
           </p>
+
+          {data.trades?.length ? (
+            <section>
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="font-display text-2xl">Coverage by trade</h2>
+                <Link to="/app/jobs" className="text-xs text-primary underline">
+                  Jobs
+                </Link>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {data.trades.map((t) => (
+                  <div key={t.trade} className="border border-border bg-surface p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-muted">{t.band} coverage</div>
+                    <div className="font-display text-xl">{t.trade}</div>
+                    <div className="text-xs text-muted">
+                      {t.clear} CLEAR · {t.hold} HOLD · {t.watch} WATCH
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <div className="grid gap-4 lg:grid-cols-2">
             <section className="border border-border bg-surface">
