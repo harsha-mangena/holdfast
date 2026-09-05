@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SignedIn, SignedOut } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { Button, StatusChip } from "@/components/ui-kit";
-import { UsageBoard } from "@/components/usage-board";
+import { Button } from "@/components/ui-kit";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ProductWindow } from "@/components/product-window";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -11,15 +11,16 @@ function Home() {
   const { isPending } = useCurrentUserState();
   return (
     <div className="min-h-dvh overflow-x-hidden bg-bg text-fg">
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-bg/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-bg/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <a href="#top" className="font-display text-2xl tracking-wide text-primary">
-            HOLDFAST
+            Holdfast
           </a>
-          <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
-            <a href="#why">Why</a>
-            <Link to="/demo">See it run</Link>
-            <a href="#pricing">Pricing</a>
+          <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted">
+            <a href="#product">Product</a>
+            <a href="#how">How it works</a>
+            <Link to="/live">Live job</Link>
+            <a href="#pricing">Get a demo</a>
             {isPending ? (
               <div className="h-8 w-16 animate-pulse rounded-md bg-raised" />
             ) : (
@@ -33,7 +34,7 @@ function Home() {
               </>
             )}
             <Link to="/demo">
-              <Button className="min-h-10">Get a demo</Button>
+              <Button className="min-h-10 rounded-full px-5">Get a demo</Button>
             </Link>
             <ThemeToggle />
           </nav>
@@ -41,100 +42,108 @@ function Home() {
       </header>
 
       <main id="top">
-        <section className="mx-auto max-w-6xl px-4 pt-6 sm:pt-10">
-          <UsageBoard />
-        </section>
-
-        <section className="mx-auto max-w-3xl px-4 py-14 text-center">
-          <p className="text-[11px] uppercase tracking-[0.28em] text-primary">The 6 a.m. gate</p>
-          <h1 className="mt-3 font-display text-[clamp(2.4rem,7vw,4.6rem)] font-semibold leading-[0.92]">
-            You already collect the COI. You still send HOLD through the fence.
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-            Brokers file. Jones archives. Spreadsheets lie. The empty slot is dispatch: CLEAR, WATCH, or HOLD — derived
-            from the PDF, never typed. That is as necessary as a POS on the line.
-          </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link to="/demo">
-              <Button className="min-h-12 w-full sm:w-auto">See it run — no account</Button>
-            </Link>
-            <a href="#pricing">
-              <Button tone="ghost" className="min-h-12 w-full sm:w-auto">
-                Plans
-              </Button>
-            </a>
+        <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 lg:grid-cols-2 lg:py-16">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.28em] text-primary">The 6 a.m. gate</p>
+            <h1 className="mt-3 font-serif text-[clamp(2.4rem,6vw,4.4rem)] font-medium leading-[1.05] tracking-tight">
+              Expired certificates of insurance do not go through the fence.
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
+              HOLD, WATCH, or CLEAR — derived from the PDF and your standards, sitting next to the dollars still open
+              on that crew. Jones files. We gate the job.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link to="/demo">
+                <Button className="min-h-12 w-full rounded-full sm:w-auto">See it run — no account</Button>
+              </Link>
+              <Link to="/live">
+                <Button tone="ghost" className="min-h-12 w-full rounded-full sm:w-auto">
+                  Open the live board
+                </Button>
+              </Link>
+            </div>
           </div>
+          <ProductWindow />
         </section>
 
         <section className="border-y border-border bg-surface">
           <div className="mx-auto grid max-w-6xl gap-px sm:grid-cols-3">
             {[
-              ["Saturated", "COI inboxes, broker portals, enterprise trackers."],
-              ["Unsaturated", "Who is allowed on the pad this morning."],
-              ["Holdfast", "Derived gate. Human confirm. Evidence pack."],
-            ].map(([t, d]) => (
-              <div key={t} className="bg-surface px-6 py-8">
-                <div className="text-[11px] uppercase tracking-[0.2em] text-primary">{t}</div>
-                <p className="mt-2 font-display text-2xl leading-tight">{d}</p>
+              ["$12,500", "held on Iron Ridge pay app 14"],
+              ["NCCI 2-H", "uninsured payroll becomes yours"],
+              ["$49", "25 names. Human confirm."],
+            ].map(([n, l]) => (
+              <div key={n} className="bg-surface px-6 py-8">
+                <div className="font-serif text-3xl">{n}</div>
+                <p className="mt-1 text-sm text-muted">{l}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section id="how" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-primary">How it works</p>
+          <h2 className="mt-1 font-serif text-3xl sm:text-4xl">Three lines. Not four identical screenshots.</h2>
+          <ol className="mt-8 grid gap-6 md:grid-cols-3">
+            {[
+              ["01", "Drop", "Sub never logs in. The PDF lands. OCR is a draft."],
+              ["02", "Confirm", "A human stamps the date. The model cannot CLEAR."],
+              ["03", "Gate", "HOLD does not enter. Remaining dollars freeze on the same row."],
+            ].map(([n, t, d]) => (
+              <li key={n}>
+                <div className="text-[11px] uppercase tracking-wider text-primary">{n}</div>
+                <h3 className="mt-1 font-serif text-2xl">{t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{d}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section id="product" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-8">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-primary">Also on the desk</p>
+          <h2 className="mt-1 font-serif text-3xl sm:text-4xl">Preconstruction without a second product.</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <Feature t="Jobs" d="Forward any invitation. We index dates, trades, bond, wage. Bid / no-bid is derived from who is CLEAR in those trades today." />
+            <Feature t="Coverage by trade" d="Low, medium, or high at the division — the GC version of bid coverage. Thin HVAC is a HOLD scope, not a surprise on Monday." />
+            <Feature t="Calendar" d="Bid due, NTP, COI expiries, pay apps. One week the whole estimating desk can read." />
+            <Feature t="Ask the pack" d="Who is HOLD. Which trade is thin. What the invite skipped. Grounded in this board, not a chatbot." />
           </div>
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-            {[
-              ["12", "subs on the job"],
-              ["1", "HOLD at the fence"],
-              ["$1M", "GL required"],
-              ["0", "typed statuses"],
-              ["30d", "first alert"],
-            ].map(([n, l]) => (
-              <div key={l} className="border border-border bg-surface px-3 py-4">
-                <div className="font-display text-3xl tabular-nums">{n}</div>
-                <div className="mt-1 text-[11px] uppercase tracking-wider text-muted">{l}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="why" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-8">
-          <div className="grid gap-px overflow-hidden rounded-md border border-border bg-border sm:grid-cols-2">
-            <Why n="01" t="The job still runs on inboxes" d="PDFs die in email. Spreadsheets go stale the week after bid day. You find out at the claim." />
-            <Why n="02" t="A missed date is a coverage gap" d="If GL expired yesterday it is not coverage. Holdfast treats that as HOLD, not probably fine." />
-            <Why n="03" t="No compliant checkbox" d="Status is computed from the original plus your standards every time you look." />
-            <Why n="04" t="OCR is a draft" d="We read the page. A human confirms. Wrong dates never auto-save. The model cannot stamp CLEAR." />
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-4 py-10">
-          <p className="text-[11px] uppercase tracking-[0.22em] text-primary">Five states. Derived.</p>
-          <h2 className="mt-1 font-display text-3xl sm:text-4xl">The board, not a folder.</h2>
-          <div className="mt-6 grid gap-2 sm:grid-cols-5">
-            {(["compliant", "expiring", "expired", "missing", "insufficient"] as const).map((s) => (
-              <div key={s} className="tile-hover min-h-24 border border-border bg-surface p-3">
-                <StatusChip status={s} />
-                <p className="mt-3 text-xs leading-relaxed text-muted">{BOARD[s]}</p>
-              </div>
-            ))}
+          <p className="text-[11px] uppercase tracking-[0.22em] text-primary">Stories</p>
+          <h2 className="mt-1 font-serif text-3xl">The live sample. We do not have paying GCs yet.</h2>
+          <article className="mt-6 border border-border bg-surface p-6 sm:p-8">
+            <p className="font-serif text-4xl tabular-nums">$12,500 held</p>
+            <p className="mt-2 max-w-2xl text-muted">
+              Northfork job 14. Iron Ridge Electric, 246 days past on GL. Super wants the lot closed. Controller wants
+              the check frozen. Same row.
+            </p>
+          </article>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <Quote n="The date" d="A COI is a snapshot. Policies cancel after the PDF. GCs still get named." />
+            <Quote n="The drop" d="Sub never logs in. Billy sells that. We tie it to pay." />
+            <Quote n="NCCI 2-H" d="Pay an uninsured sub and those dollars become your workers-comp payroll." />
           </div>
         </section>
 
         <section id="pricing" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-24">
-          <h2 className="font-display text-3xl sm:text-4xl">Plans that follow vendor count</h2>
+          <h2 className="font-serif text-3xl sm:text-4xl">Plans that follow vendor count</h2>
           <p className="mt-2 max-w-xl text-sm text-muted">One axis: how many subs you watch. Seats are not the meter.</p>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             <Plan
-              name="Starter"
+              name="Founding"
               price="$49"
-              blurb="Most GCs. 25 vendors, email alerts, CSV/PDF export."
-              points={["Derived status board", "Upload + confirm", "30 / 14 / 7 / 1 day alerts", "Audit log"]}
+              blurb="Most GCs. 25 names, drop link, jobs, calendar."
+              points={["Derived HOLD / WATCH / CLEAR", "Human confirm", "Jobs + trade coverage", "Ask the pack"]}
+              featured
             />
             <Plan
               name="Growth"
               price="$149"
               blurb="When the job book is no longer a spreadsheet."
-              points={["Everything in Starter", "Unlimited subs", "Finance desk + chase", "Priority extraction"]}
+              points={["Everything in Founding", "Unlimited subs", "Books + chase", "Priority extraction"]}
+              featured
             />
           </div>
         </section>
@@ -147,20 +156,20 @@ function Home() {
   );
 }
 
-const BOARD: Record<string, string> = {
-  compliant: "Limits, dates, AI, and WOS all hold.",
-  expiring: "Inside 30 days. Email starts now.",
-  expired: "The policy date is already past.",
-  missing: "Required line never arrived.",
-  insufficient: "On file — under the required limit.",
-};
-
-function Why({ n, t, d }: { n: string; t: string; d: string }) {
+function Feature({ t, d }: { t: string; d: string }) {
   return (
-    <div className="tile-hover bg-surface p-5 sm:p-6">
-      <div className="font-display text-primary">{n}</div>
-      <h3 className="mt-1 font-display text-2xl">{t}</h3>
+    <div className="border border-border bg-surface p-5">
+      <h3 className="font-serif text-2xl">{t}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted">{d}</p>
+    </div>
+  );
+}
+
+function Quote({ n, d }: { n: string; d: string }) {
+  return (
+    <div className="border border-border bg-surface p-5">
+      <div className="text-[11px] uppercase tracking-wider text-primary">{n}</div>
+      <p className="mt-2 text-sm text-muted">{d}</p>
     </div>
   );
 }
@@ -170,15 +179,17 @@ function Plan({
   price,
   blurb,
   points,
+  featured,
 }: {
   name: string;
   price: string;
   blurb: string;
   points: string[];
+  featured?: boolean;
 }) {
   return (
-    <div className="group border border-border bg-surface p-6 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-[0_12px_32px_rgb(0_0_0/0.08)]">
-      <div className="font-display text-2xl">{name}</div>
+    <div className={`border bg-surface p-6 ${featured ? "border-primary" : "border-border"}`}>
+      <div className="font-serif text-2xl">{name}</div>
       <div className="mt-1 font-display text-4xl">
         {price}
         <span className="text-lg text-muted">/mo</span>
@@ -192,9 +203,7 @@ function Plan({
         ))}
       </ul>
       <Link to="/demo">
-        <Button className="mt-6 min-h-12 w-full" tone="ghost">
-          See it run
-        </Button>
+        <Button className="mt-6 min-h-12 w-full rounded-full">{featured ? "Start founding" : "See it run"}</Button>
       </Link>
     </div>
   );
