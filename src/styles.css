@@ -18,6 +18,7 @@
   --radius-md: 0.5rem;
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Barlow Condensed", "IBM Plex Sans", sans-serif;
+  --font-serif: "Playfair Display", "Times New Roman", serif;
   --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -69,7 +70,7 @@ html[data-theme="light"] {
     background: var(--hf-bg);
     color: var(--hf-fg);
     font-family: var(--font-sans);
-    overflow-x: hidden;
+    overflow-x-hidden;
   }
 }
 
@@ -120,6 +121,10 @@ html[data-theme="light"] {
   .tile-hover:hover {
     transform: translateY(-2px);
     background-color: var(--color-raised);
+  }
+  .tab-line {
+    transform-origin: left;
+    animation: tab-line 4.8s linear forwards;
   }
 
   .beam {
@@ -350,6 +355,10 @@ html[data-theme="light"] {
   }
 }
 
+@keyframes tab-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
 @keyframes rise-in {
   to {
     opacity: 1;
