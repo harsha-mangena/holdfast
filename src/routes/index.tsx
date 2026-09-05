@@ -128,21 +128,22 @@ function Home() {
         </section>
 
         <section id="pricing" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-24">
-          <h2 className="font-serif text-3xl sm:text-4xl">Plans that follow vendor count</h2>
-          <p className="mt-2 max-w-xl text-sm text-muted">One axis: how many subs you watch. Seats are not the meter.</p>
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <h2 className="font-serif text-3xl sm:text-4xl">One plan. Twenty-five names.</h2>
+          <p className="mt-2 max-w-xl text-sm text-muted">
+            Seats are not the meter. $49 watches 25 subs — drop link, jobs, calendar, books, chase.
+          </p>
+          <div className="mt-8 max-w-md">
             <Plan
               name="Founding"
               price="$49"
-              blurb="Most GCs. 25 names, drop link, jobs, calendar."
-              points={["Derived HOLD / WATCH / CLEAR", "Human confirm", "Jobs + trade coverage", "Ask the pack"]}
-              featured
-            />
-            <Plan
-              name="Growth"
-              price="$149"
-              blurb="When the job book is no longer a spreadsheet."
-              points={["Everything in Founding", "Unlimited subs", "Books + chase", "Priority extraction"]}
+              blurb="Most GCs. 25 names on the board."
+              points={[
+                "Derived HOLD / WATCH / CLEAR",
+                "Human confirm",
+                "Jobs, trade coverage, calendar",
+                "Books + chase",
+                "Ask the pack",
+              ]}
               featured
             />
           </div>
