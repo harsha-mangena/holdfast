@@ -7,16 +7,9 @@ export const Route = createFileRoute("/app")({ component: AppLayout });
 
 function AppLayout() {
   const { user, isPending } = useCurrentUserState();
-  if (isPending) {
-    return (
-      <div className="grid min-h-screen place-items-center bg-bg text-muted">
-        Loading board…
-      </div>
-    );
-  }
-  if (!user) return <RedirectToSignIn to="/login" />;
-  if (!user.emailVerified) {
+  if (!isPending && !user) return <RedirectToSignIn to="/login" />;
+  if (!isPending && user && !user.emailVerified) {
     return <Navigate to="/verify" search={{ email: user.primaryEmail ?? "" }} />;
   }
-  return <AppShell />;
+  return <AppShell sessionReady={!isPending && !!user} />;
 }

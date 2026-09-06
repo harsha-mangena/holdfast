@@ -10,8 +10,6 @@ A sub drops a PDF. Holdfast reads it. A human confirms the dates. The board then
 | **WATCH** | Inside 30 days of expiry |
 | **HOLD** | Expired, missing, or short — do not dispatch |
 
-Jobs, calendar, and coverage-by-trade sit on the same desk. Forward an invitation: bid / no-bid is derived from who is CLEAR in those trades.
-
 Landing demo runs with no account (Iron Ridge Electric, expired GL). Sign in only if you want the board kept overnight.
 
 ```bash
