@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
 import { Button, Field, Input } from "@/components/ui-kit";
@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export const Route = createFileRoute("/login")({ component: Login });
 
 function Login() {
+  const nav = useNavigate();
   const [mode, setMode] = useState<"in" | "up">("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,7 +34,7 @@ function Login() {
       }
       const res = await authClient.signIn.email({ email, password, callbackURL: "/app" });
       if (res.error) throw new Error(res.error.message);
-      window.location.assign("/app");
+      void nav({ to: "/app" });
     } catch (err) {
       setError(userFacing(err));
     } finally {
