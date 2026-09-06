@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { SignedIn, SignedOut } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { Button } from "@/components/ui-kit";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -8,7 +7,7 @@ import { ProductWindow } from "@/components/product-window";
 export const Route = createFileRoute("/")({ component: Home });
 
 function Home() {
-  const { isPending } = useCurrentUserState();
+  const { user } = useCurrentUserState();
   return (
     <div className="min-h-dvh overflow-x-hidden bg-bg text-fg">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-bg/90 backdrop-blur">
@@ -20,19 +19,9 @@ function Home() {
             <a href="#product">Product</a>
             <a href="#how">How it works</a>
             <Link to="/live">Live job</Link>
-            <a href="#pricing">Get a demo</a>
-            {isPending ? (
-              <div className="h-8 w-16 animate-pulse rounded-md bg-raised" />
-            ) : (
-              <>
-                <SignedOut>
-                  <Link to="/login">Sign in</Link>
-                </SignedOut>
-                <SignedIn>
-                  <Link to="/app">Board</Link>
-                </SignedIn>
-              </>
-            )}
+            <Link to={user ? "/app" : "/login"} className="inline-block min-w-[4.5rem]">
+              {user ? "Board" : "Sign in"}
+            </Link>
             <Link to="/demo">
               <Button className="min-h-10 rounded-full px-5">Get a demo</Button>
             </Link>
@@ -101,12 +90,12 @@ function Home() {
 
         <section id="product" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-8">
           <p className="text-[11px] uppercase tracking-[0.22em] text-primary">Also on the desk</p>
-          <h2 className="mt-1 font-serif text-3xl sm:text-4xl">Preconstruction without a second product.</h2>
+          <h2 className="mt-1 font-serif text-3xl sm:text-4xl">The certificate, the dollars, the chase.</h2>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
-            <Feature t="Jobs" d="Forward any invitation. We index dates, trades, bond, wage. Bid / no-bid is derived from who is CLEAR in those trades today." />
-            <Feature t="Coverage by trade" d="Low, medium, or high at the division — the GC version of bid coverage. Thin HVAC is a HOLD scope, not a surprise on Monday." />
-            <Feature t="Calendar" d="Bid due, NTP, COI expiries, pay apps. One week the whole estimating desk can read." />
-            <Feature t="Ask the pack" d="Who is HOLD. Which trade is thin. What the invite skipped. Grounded in this board, not a chatbot." />
+            <Feature t="Drop" d="Sub never logs in. The PDF lands. OCR is a draft. A screenshot is not a certificate." />
+            <Feature t="Confirm" d="A human stamps the date. The model cannot CLEAR. HOLD, WATCH, or CLEAR is derived from the ACORD and your standards." />
+            <Feature t="Books" d="Pay app remaining sits on the same row as the gate. Iron Ridge HOLD is $12,500 still open — not a separate spreadsheet." />
+            <Feature t="Chase" d="The email and the call go to the crew that cannot enter. Prefills from the gap and the dollars. SMTP is the next wire." />
           </div>
         </section>
 
@@ -130,7 +119,7 @@ function Home() {
         <section id="pricing" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-24">
           <h2 className="font-serif text-3xl sm:text-4xl">One plan. Twenty-five names.</h2>
           <p className="mt-2 max-w-xl text-sm text-muted">
-            Seats are not the meter. $49 watches 25 subs — drop link, jobs, calendar, books, chase.
+            Seats are not the meter. $49 watches 25 subs — drop link, board, books, chase.
           </p>
           <div className="mt-8 max-w-md">
             <Plan
@@ -140,8 +129,8 @@ function Home() {
               points={[
                 "Derived HOLD / WATCH / CLEAR",
                 "Human confirm",
-                "Jobs, trade coverage, calendar",
-                "Books + chase",
+                "Books next to the gate",
+                "Chase the HOLD",
                 "Ask the pack",
               ]}
               featured
